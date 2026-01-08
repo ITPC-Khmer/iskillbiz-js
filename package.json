@@ -7,7 +7,8 @@
     "build:css": "sass public/stylesheets:public/stylesheets --no-source-map",
     "watch:css": "sass --watch public/stylesheets:public/stylesheets --no-source-map",
     "seed": "node scripts/seed.js",
-    "test": "mocha \"test/**/*.test.js\""
+    "test": "mocha \"test/**/*.test.js\"",
+    "dev": "concurrently \"npm start\" \"npm run dev --prefix frontend\""
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -15,19 +16,20 @@
     "connect-session-sequelize": "^7.1.7",
     "debug": "~2.6.9",
     "dotenv": "^16.4.5",
-    "express": "~4.16.1",
+    "express": "5.0.0",
     "express-session": "^1.18.0",
     "http-errors": "~1.6.3",
     "jsonwebtoken": "^9.0.2",
     "morgan": "~1.9.1",
-    "multer": "^1.4.5-lts.1",
+    "multer": "2.0.2",
     "mysql2": "^3.11.3",
-    "pug": "2.0.0-beta11",
+    "pug": "3.0.3",
     "sass": "^1.80.0",
     "sequelize": "^6.37.3"
   },
   "devDependencies": {
     "chai": "^4.4.1",
+    "concurrently": "^9.0.1",
     "mocha": "^11.0.1",
     "supertest": "^6.3.3"
   }
