@@ -14,14 +14,32 @@ const router = createRouter({
 
 const pinia = createPinia();
 
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to, _from, next) => {
   const auth = useAuthStore(pinia);
-  if (auth.token && !auth.user) {
-    try { await auth.fetchMe(); } catch { auth.logout(); }
+
+  // Get token value properly (handles both ref and plain value)
+  const tokenValue = typeof auth.token === 'object' && auth.token.value ? auth.token.value : auth.token;
+
+  // Check authentication requirements first
+  if (to.meta.layout === 'auth' && auth.isAuthed) {
+    return next('/');
   }
-  if (to.meta.layout === 'auth' && auth.isAuthed) return next('/');
-  if (to.meta.layout === 'app' && !auth.isAuthed) return next('/login');
-  return next();
+
+  if (to.meta.layout === 'app' && !auth.isAuthed) {
+    return next('/login');
+  }
+
+  // If we have a token but no user data, fetch it before proceeding
+  if (tokenValue && !auth.user && to.meta.layout === 'app') {
+    try {
+      await auth.fetchMe();
+    } catch (error) {
+      auth.logout();
+      return next('/login');
+    }
+  }
+
+  next();
 });
 
 createApp(App).use(pinia).use(router).mount('#app');

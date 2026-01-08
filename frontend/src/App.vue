@@ -10,9 +10,9 @@
           </div>
           <p class="auth-subtitle">Access your account</p>
         </div>
-        <RouterView v-slot="{ Component }">
+        <RouterView v-slot="{ Component, route }">
           <Transition name="slide-fade" mode="out-in">
-            <component :is="Component" />
+            <component :is="Component" :key="route.path" />
           </Transition>
         </RouterView>
       </div>
@@ -86,9 +86,9 @@
         </div>
       </div>
       <div class="content-body">
-        <RouterView v-slot="{ Component }">
+        <RouterView v-slot="{ Component, route }">
           <Transition name="slide-fade" mode="out-in">
-            <component :is="Component" />
+            <component :is="Component" :key="route.path" />
           </Transition>
         </RouterView>
       </div>
@@ -159,13 +159,12 @@ async function doLogout() {
 }
 
 onMounted(() => {
-  if (auth.token.value) auth.fetchMe().catch(() => auth.logout());
-
   // Load sidebar state from localStorage
   const savedState = localStorage.getItem('sidebarCollapsed');
   if (savedState !== null) {
     sidebarCollapsed.value = JSON.parse(savedState);
   }
+  // User data is already loaded by the router guard in main.js
 });
 
 // Save sidebar state to localStorage
