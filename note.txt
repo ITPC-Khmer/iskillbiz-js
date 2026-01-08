@@ -39,3 +39,10 @@ node scripts/seed.js
 # or
 SEED_RESET=1 node scripts/seed.js
 
+
+# Just create tables
+npm run init:facebook
+
+# Create tables + add test data
+npm run init:facebook:seed
+
