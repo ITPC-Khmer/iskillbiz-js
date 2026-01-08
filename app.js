@@ -64,6 +64,7 @@ app.use('/api/facebook', facebookRouter);
 app.use('/api/facebook', facebookAutomationsRouter);
 app.use('/api/facebook', facebookInstantReplyRouter);
 app.use('/api/facebook', facebookFAQRouter);
+app.use('/api/facebook', facebookSyncRouter);
 app.use('/api/facebook', facebookWebhookRouter);
 app.use('/api', indexRouter);
 app.use('/api/users', usersRouter);
