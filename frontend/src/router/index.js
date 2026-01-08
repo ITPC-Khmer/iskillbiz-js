@@ -5,6 +5,7 @@ import Users from '../views/Users.vue';
 import Roles from '../views/Roles.vue';
 import Permissions from '../views/Permissions.vue';
 import Dashboard from '../views/Dashboard.vue';
+import Facebook from '../views/Facebook.vue';
 
 const routes = [
   { path: '/', component: Dashboard, meta: { layout: 'app' } },
@@ -14,6 +15,7 @@ const routes = [
   { path: '/admin/users', component: Users, meta: { layout: 'app' } },
   { path: '/admin/roles', component: Roles, meta: { layout: 'app' } },
   { path: '/admin/permissions', component: Permissions, meta: { layout: 'app' } },
+  { path: '/facebook', component: Facebook, meta: { layout: 'app' } },
 ];
 
 export default routes;

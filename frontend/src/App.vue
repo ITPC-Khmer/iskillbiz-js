@@ -117,6 +117,7 @@
 import { RouterView, useRoute, useRouter } from "vue-router";
 import { computed, onMounted, ref } from "vue";
 import { useAuthStore } from "./stores/auth";
+import { navItems } from "./constants/navItems";
 
 const route = useRoute();
 const router = useRouter();
@@ -127,18 +128,15 @@ const forceReloadKey = ref(0);
 
 const layout = computed(() => route.meta.layout || "app");
 
-const navItems = [
-  { label: "Dashboard", icon: "📊", path: "/" },
-  { label: "Profile", icon: "👤", path: "/me" },
-  { label: "Users", icon: "👥", path: "/admin/users" },
-  { label: "Roles", icon: "🔑", path: "/admin/roles" },
-  { label: "Permissions", icon: "🔐", path: "/admin/permissions" },
-];
 
 const pageInfo = {
   "/": {
     title: "Dashboard",
     subtitle: "Overview of your account and activities",
+  },
+  "/facebook": {
+    title: "Facebook",
+    subtitle: "Manage Facebook pages, conversations, and contacts",
   },
   "/me": { title: "Profile", subtitle: "Manage your personal information" },
   "/admin/users": { title: "Users", subtitle: "Manage system users" },
