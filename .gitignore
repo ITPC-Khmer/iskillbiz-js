@@ -20,4 +20,5 @@ dist/
 public/stylesheets/*.css.map
 package-lock.json
 uploads/
+ecosystem.config.js
 

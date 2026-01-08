@@ -1,3 +1,17 @@
-cd /Users/globesosuperapp/PhpstormProjects/iskillbiz-js
+cd iskillbiz-js
 npm install
 npm run dev
+
+sudo nginx -t
+sudo systemctl reload nginx
+
+cd /Users/globesosuperapp/PhpstormProjects/iskillbiz-js
+npm install --production
+pm2 start ecosystem.config.js
+pm2 save
+pm2 startup
+pm2 status
+
+
+pm2 restart ecosystem.config.js
+pm2 save
