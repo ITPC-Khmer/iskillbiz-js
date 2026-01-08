@@ -10,8 +10,12 @@
           <p class="text-muted small mb-0">Super_admin only — Create and manage permissions to define what users can do</p>
         </div>
         <div class="gap-2 d-flex ms-3">
-          <button class="btn btn-primary btn-sm px-3" @click="openCreate">+ New Permission</button>
-          <button class="btn btn-outline-secondary btn-sm" @click="load" :disabled="loading">Reload</button>
+          <button class="btn btn-primary btn-sm" @click="openCreate" title="Create new permission" style="width: 36px; height: 36px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 6px;">
+            <span style="font-size: 1.2rem;">➕</span>
+          </button>
+          <button class="btn btn-outline-secondary btn-sm" @click="load" :disabled="loading" title="Reload permissions" style="width: 36px; height: 36px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 6px;">
+            <span style="font-size: 1rem;">🔄</span>
+          </button>
         </div>
       </div>
       <div v-if="error" class="alert alert-danger">{{ error }}</div>
