@@ -259,10 +259,10 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useFacebook } from '../composables/useFacebook';
-import { useNotifications } from '../composables/useNotifications';
-import { useFacebookAutomations } from '../composables/useFacebookAutomations';
-import { useFacebookOAuth } from '../composables/useFacebookOAuth';
+import { useFacebook } from '@/composables/useFacebook';
+import { useNotifications } from '@/composables/useNotifications';
+import { useFacebookAutomations } from '@/composables/useFacebookAutomations';
+import { useFacebookOAuth } from '@/composables/useFacebookOAuth';
 import { useRoute, useRouter } from 'vue-router';
 
 const fb = useFacebook();
