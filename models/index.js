@@ -30,10 +30,13 @@ db.FacebookMessage = require('./facebookMessage')(sequelize);
 db.FacebookAutomation = require('./facebookAutomation')(sequelize);
 db.FacebookKeyword = require('./facebookKeyword')(sequelize);
 db.FacebookContact = require('./facebookContact')(sequelize);
+db.FacebookInstantReply = require('./facebookInstantReply')(sequelize);
+db.FacebookFAQ = require('./facebookFAQ')(sequelize);
+db.FacebookFAQLog = require('./facebookFAQLog')(sequelize);
 
 // Associations
 // Users <-> Roles
-const { User, Role, Permission, FacebookAccount, FacebookPage, FacebookConversation, FacebookMessage, FacebookAutomation, FacebookKeyword, FacebookContact } = db;
+const { User, Role, Permission, FacebookAccount, FacebookPage, FacebookConversation, FacebookMessage, FacebookAutomation, FacebookKeyword, FacebookContact, FacebookInstantReply, FacebookFAQ, FacebookFAQLog } = db;
 User.belongsToMany(Role, { through: db.UserRole, foreignKey: 'user_id' });
 Role.belongsToMany(User, { through: db.UserRole, foreignKey: 'role_id' });
 
@@ -69,6 +72,22 @@ FacebookKeyword.belongsTo(FacebookAutomation, { foreignKey: 'facebook_automation
 // FacebookPage -> FacebookContact
 FacebookPage.hasMany(FacebookContact, { foreignKey: 'facebook_page_id', as: 'contacts' });
 FacebookContact.belongsTo(FacebookPage, { foreignKey: 'facebook_page_id' });
+
+// FacebookAutomation -> FacebookInstantReply
+FacebookAutomation.hasMany(FacebookInstantReply, { foreignKey: 'facebook_automation_id', as: 'instantReplies' });
+FacebookInstantReply.belongsTo(FacebookAutomation, { foreignKey: 'facebook_automation_id' });
+
+// FacebookPage -> FacebookFAQ
+FacebookPage.hasMany(FacebookFAQ, { foreignKey: 'facebook_page_id', as: 'faqs' });
+FacebookFAQ.belongsTo(FacebookPage, { foreignKey: 'facebook_page_id' });
+
+// FacebookFAQ -> FacebookFAQLog
+FacebookFAQ.hasMany(FacebookFAQLog, { foreignKey: 'facebook_faq_id', as: 'logs' });
+FacebookFAQLog.belongsTo(FacebookFAQ, { foreignKey: 'facebook_faq_id' });
+
+// FacebookConversation -> FacebookFAQLog
+FacebookConversation.hasMany(FacebookFAQLog, { foreignKey: 'facebook_conversation_id', as: 'faqLogs' });
+FacebookFAQLog.belongsTo(FacebookConversation, { foreignKey: 'facebook_conversation_id' });
 
 async function initDatabase(sessionStore) {
   await sequelize.authenticate();
