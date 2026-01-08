@@ -1,22 +1,18 @@
 const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
-  const FacebookAccount = sequelize.define('FacebookAccount', {
+  return sequelize.define('FacebookAccount', {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true
     },
     user_id: {
-      type: DataTypes.UUID,
-      allowNull: false,
-      references: {
-        model: 'users',
-        key: 'id'
-      }
+      type: DataTypes.CHAR(36), // Following UUID format
+      allowNull: false
     },
     facebook_user_id: {
-      type: DataTypes.STRING(255),
+      type: DataTypes.VARCHAR(255),
       allowNull: false,
       unique: true
     },
@@ -24,18 +20,9 @@ module.exports = (sequelize) => {
       type: DataTypes.TEXT,
       allowNull: false
     },
-    token_expires_at: {
-      type: DataTypes.DATE,
-      allowNull: true
-    },
-    name: {
-      type: DataTypes.STRING(255),
-      allowNull: true
-    },
-    email: {
-      type: DataTypes.STRING(255),
-      allowNull: true
-    },
+    token_expires_at: DataTypes.DATE,
+    name: DataTypes.VARCHAR(255),
+    email: DataTypes.VARCHAR(255),
     status: {
       type: DataTypes.ENUM('active', 'expired', 'revoked'),
       defaultValue: 'active'
@@ -45,7 +32,5 @@ module.exports = (sequelize) => {
     timestamps: true,
     underscored: true
   });
-
-  return FacebookAccount;
 };
 

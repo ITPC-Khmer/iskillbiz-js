@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
-  const FacebookMessage = sequelize.define('FacebookMessage', {
+  return sequelize.define('FacebookMessage', {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -9,56 +9,31 @@ module.exports = (sequelize) => {
     },
     facebook_conversation_id: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'facebook_conversations',
-        key: 'id'
-      }
+      allowNull: false
     },
     message_id: {
-      type: DataTypes.STRING(255),
+      type: DataTypes.VARCHAR(255),
       allowNull: false,
       unique: true
     },
-    from_id: {
-      type: DataTypes.STRING(255),
-      allowNull: false
-    },
-    from_name: {
-      type: DataTypes.STRING(255),
-      allowNull: true
-    },
-    message: {
-      type: DataTypes.TEXT,
-      allowNull: true
-    },
-    created_time: {
-      type: DataTypes.DATE,
-      allowNull: true
-    },
-    is_from_page: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false
-    },
+    from_id: DataTypes.VARCHAR(255),
+    from_name: DataTypes.VARCHAR(255),
+    to_data: DataTypes.JSON, // Stores array of recipients
+    message: DataTypes.TEXT,
+    created_time: DataTypes.DATE,
     has_attachments: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
     },
-    attachments: {
-      type: DataTypes.JSON,
-      allowNull: true
+    attachments: DataTypes.JSON,
+    is_from_page: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
     }
   }, {
     tableName: 'facebook_messages',
     timestamps: true,
-    underscored: true,
-    indexes: [
-      {
-        fields: ['facebook_conversation_id', 'created_time']
-      }
-    ]
+    underscored: true
   });
-
-  return FacebookMessage;
 };
 

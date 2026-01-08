@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
-  const FacebookKeyword = sequelize.define('FacebookKeyword', {
+  return sequelize.define('FacebookKeyword', {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -9,38 +9,25 @@ module.exports = (sequelize) => {
     },
     facebook_automation_id: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'facebook_automations',
-        key: 'id'
-      }
+      allowNull: false
     },
     keyword: {
-      type: DataTypes.STRING(255),
+      type: DataTypes.VARCHAR(255),
       allowNull: false
     },
     match_type: {
       type: DataTypes.ENUM('exact', 'contains', 'starts_with', 'ends_with', 'regex'),
       defaultValue: 'contains'
     },
-    response_message: {
-      type: DataTypes.TEXT,
-      allowNull: false
-    },
+    response_message: DataTypes.TEXT,
     is_active: {
       type: DataTypes.BOOLEAN,
       defaultValue: true
-    },
-    match_count: {
-      type: DataTypes.INTEGER,
-      defaultValue: 0
     }
   }, {
     tableName: 'facebook_keywords',
     timestamps: true,
     underscored: true
   });
-
-  return FacebookKeyword;
 };
 

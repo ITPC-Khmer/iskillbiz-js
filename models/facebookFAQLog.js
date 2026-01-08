@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
-  const FacebookFAQLog = sequelize.define('FacebookFAQLog', {
+  return sequelize.define('FacebookFAQLog', {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -9,45 +9,24 @@ module.exports = (sequelize) => {
     },
     facebook_faq_id: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'facebook_faqs',
-        key: 'id'
-      }
+      allowNull: false
     },
-    facebook_conversation_id: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      references: {
-        model: 'facebook_conversations',
-        key: 'id'
-      }
+    facebook_message_id: {
+      type: DataTypes.VARCHAR(255), // Use VARCHAR for ID
+      allowNull: true // Might be null if manually tested?
     },
-    user_feedback: {
-      type: DataTypes.ENUM('helpful', 'unhelpful', 'none'),
-      defaultValue: 'none'
+    is_resolved: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
     },
-    message_id: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-      comment: 'Facebook message ID that triggered this FAQ'
-    },
-    triggered_by_keyword: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-      comment: 'Which keyword triggered this FAQ'
+    feedback_rating: {
+      type: DataTypes.INTEGER, // 1-5 or -1/1
+      allowNull: true
     }
   }, {
     tableName: 'facebook_faq_logs',
     timestamps: true,
-    underscored: true,
-    indexes: [
-      {
-        fields: ['facebook_faq_id', 'created_at']
-      }
-    ]
+    underscored: true
   });
-
-  return FacebookFAQLog;
 };
 
