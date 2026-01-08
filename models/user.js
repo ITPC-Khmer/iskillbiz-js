@@ -1,10 +1,10 @@
 const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
-  const User = sequelize.define('User', {
+  return sequelize.define('User', {
     id: {
-      type: DataTypes.INTEGER.UNSIGNED,
-      autoIncrement: true,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
       primaryKey: true
     },
     phone: {
@@ -51,7 +51,4 @@ module.exports = (sequelize) => {
     tableName: 'users',
     underscored: true
   });
-
-  return User;
 };
-

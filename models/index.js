@@ -17,6 +17,20 @@ const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {
 const db = {};
 db.sequelize = sequelize;
 db.User = require('./user')(sequelize);
+db.Role = require('./role')(sequelize);
+db.Permission = require('./permission')(sequelize);
+db.UserRole = require('./userRole')(sequelize);
+db.RolePermission = require('./rolePermission')(sequelize);
+
+// Associations
+// Users <-> Roles
+const { User, Role, Permission } = db;
+User.belongsToMany(Role, { through: db.UserRole, foreignKey: 'user_id' });
+Role.belongsToMany(User, { through: db.UserRole, foreignKey: 'role_id' });
+
+// Roles <-> Permissions
+Role.belongsToMany(Permission, { through: db.RolePermission, foreignKey: 'role_id' });
+Permission.belongsToMany(Role, { through: db.RolePermission, foreignKey: 'permission_id' });
 
 async function initDatabase(sessionStore) {
   await sequelize.authenticate();
@@ -30,4 +44,3 @@ module.exports = {
   ...db,
   initDatabase
 };
-

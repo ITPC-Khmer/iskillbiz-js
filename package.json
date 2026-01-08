@@ -5,7 +5,9 @@
   "scripts": {
     "start": "npm run build:css && node ./bin/www",
     "build:css": "sass public/stylesheets:public/stylesheets --no-source-map",
-    "watch:css": "sass --watch public/stylesheets:public/stylesheets --no-source-map"
+    "watch:css": "sass --watch public/stylesheets:public/stylesheets --no-source-map",
+    "seed": "node scripts/seed.js",
+    "test": "mocha \"test/**/*.test.js\""
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -22,5 +24,10 @@
     "pug": "2.0.0-beta11",
     "sass": "^1.80.0",
     "sequelize": "^6.37.3"
+  },
+  "devDependencies": {
+    "chai": "^4.4.1",
+    "mocha": "^11.0.1",
+    "supertest": "^6.3.3"
   }
 }

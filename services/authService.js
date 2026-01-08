@@ -1,4 +1,4 @@
-const { User } = require('../models');
+const { User, Role } = require('../models');
 const {
   hashPassword,
   comparePassword,
@@ -34,6 +34,11 @@ async function registerUser(payload, session) {
     dob: dob || null,
     bio
   });
+
+  const defaultRole = await Role.findOne({ where: { name: 'client' } });
+  if (defaultRole && user.addRole) {
+    await user.addRole(defaultRole);
+  }
 
   if (session) {
     session.userId = user.id;
@@ -71,4 +76,3 @@ module.exports = {
   registerUser,
   loginUser
 };
-
