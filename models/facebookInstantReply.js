@@ -11,6 +11,10 @@ module.exports = (sequelize) => {
       type: DataTypes.INTEGER,
       allowNull: false
     },
+    facebook_automation_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true // Must be nullable for ON DELETE SET NULL
+    },
     message: DataTypes.TEXT,
     is_active: {
       type: DataTypes.BOOLEAN,
@@ -22,4 +26,3 @@ module.exports = (sequelize) => {
     underscored: true
   });
 };
-

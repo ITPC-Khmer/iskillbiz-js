@@ -46,3 +46,5 @@ npm run init:facebook
 # Create tables + add test data
 npm run init:facebook:seed
 
+node scripts/sync-db.js
+

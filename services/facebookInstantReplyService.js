@@ -8,7 +8,12 @@ class FacebookInstantReplyService {
   async createInstantReply(automationId, replyData) {
     const { trigger = 'new_message', message, delay_seconds = 0, include_name = true, is_active = true } = replyData;
 
+    // Retrieve automation to get page ID
+    const automation = await FacebookAutomation.findByPk(automationId);
+    if (!automation) throw new Error('Automation not found');
+
     const reply = await FacebookInstantReply.create({
+      facebook_page_id: automation.facebook_page_id,
       facebook_automation_id: automationId,
       trigger,
       message,
@@ -116,4 +121,3 @@ class FacebookInstantReplyService {
 }
 
 module.exports = new FacebookInstantReplyService();
-

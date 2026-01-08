@@ -19,6 +19,17 @@ module.exports = (sequelize) => {
     email: DataTypes.STRING,
     phone: DataTypes.STRING(50),
     profile_pic: DataTypes.TEXT,
+    gender: DataTypes.STRING(20),
+    locale: DataTypes.STRING(10),
+    timezone: DataTypes.INTEGER,
+    custom_attributes: {
+      type: DataTypes.JSON,
+      comment: 'Custom key-value pairs for contact data'
+    },
+    status: {
+      type: DataTypes.ENUM('active', 'blocked', 'archived'),
+      defaultValue: 'active'
+    },
     last_interaction: DataTypes.DATE,
     notes: DataTypes.TEXT
   }, {
@@ -27,4 +38,3 @@ module.exports = (sequelize) => {
     underscored: true
   });
 };
-

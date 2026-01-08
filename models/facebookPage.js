@@ -23,9 +23,22 @@ module.exports = (sequelize) => {
     name: DataTypes.STRING,
     category: DataTypes.STRING,
     about: DataTypes.TEXT,
+    description: DataTypes.TEXT,
+    website: DataTypes.STRING,
+    email: DataTypes.STRING,
+    phone: DataTypes.STRING,
     picture_url: DataTypes.TEXT,
     cover_url: DataTypes.TEXT,
+    instagram_business_account: {
+        type: DataTypes.JSON,
+        comment: 'Linked Instagram Business Account details'
+    },
+    tasks: {
+        type: DataTypes.JSON,
+        comment: 'List of tasks/permissions the user has on this page'
+    },
       fan_count: DataTypes.INTEGER,
+      followers_count: DataTypes.INTEGER,
       is_subscribed: {
           type: DataTypes.BOOLEAN,
           defaultValue: false
@@ -41,4 +54,3 @@ module.exports = (sequelize) => {
       underscored: true
   });
 };
-
