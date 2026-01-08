@@ -1,144 +1,184 @@
 <template>
-  <div class="users-container">
-    <!-- Header Card -->
-    <div class="header-card">
-      <div class="header-content">
-        <div class="header-text">
-          <div class="header-badge">
-            <span class="badge-icon">👥</span>
-            <span>Users Management</span>
+  <div class="users-page">
+    <div class="users-container">
+      <!-- Header Card -->
+      <div class="header-card">
+        <div class="header-content">
+          <div class="header-text">
+            <div class="header-badge">
+              <span class="badge-icon">👥</span>
+              <span>Users Management</span>
+            </div>
+            <h2 class="header-title">Manage Users</h2>
+            <p class="header-subtitle">
+              Create, edit, and manage user accounts and their roles
+            </p>
           </div>
-          <h2 class="header-title">Manage Users</h2>
-          <p class="header-subtitle">Create, edit, and manage user accounts and their roles</p>
+          <div class="header-actions">
+            <button
+              class="action-btn create-btn"
+              @click="openCreate"
+              title="Create new user"
+            >
+              <span class="btn-icon">➕</span>
+            </button>
+            <button
+              class="action-btn refresh-btn"
+              @click="load"
+              :disabled="loading"
+              title="Reload users"
+            >
+              <span class="btn-icon" :class="{ spinning: loading }">🔄</span>
+            </button>
+          </div>
         </div>
-        <div class="header-actions">
-          <button class="action-btn create-btn" @click="openCreate" title="Create new user">
-            <span class="btn-icon">➕</span>
-          </button>
-          <button class="action-btn refresh-btn" @click="load" :disabled="loading" title="Reload users">
-            <span class="btn-icon" :class="{ 'spinning': loading }">🔄</span>
+      </div>
+
+      <!-- Error Alert -->
+      <div v-if="error" class="error-alert">
+        <span class="alert-icon">⚠️</span>
+        <span>{{ error }}</span>
+      </div>
+
+      <!-- Users Table Card -->
+      <div class="table-card">
+        <div v-if="loading && !users.length" class="loading-state">
+          <div class="spinner"></div>
+          <p>Loading users...</p>
+        </div>
+
+        <div v-else-if="users.length" class="table-container">
+          <table class="modern-table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Contact</th>
+                <th>Roles</th>
+                <th class="actions-column">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="u in users" :key="u.id" class="table-row">
+                <td>
+                  <div class="user-cell">
+                    <div class="user-avatar">
+                      {{ getUserInitials(u) }}
+                    </div>
+                    <div class="user-info">
+                      <div class="user-name">{{ u.name || "Unnamed" }}</div>
+                      <div class="user-phone">{{ u.phone }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="contact-cell">
+                    <span v-if="u.email" class="email-text">{{ u.email }}</span>
+                    <span v-else class="no-email">—</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="roles-cell">
+                    <span
+                      v-if="u.roles && u.roles.length"
+                      v-for="r in u.roles"
+                      :key="r"
+                      class="role-badge"
+                      >{{ r }}</span
+                    >
+                    <span v-else class="no-roles">No roles</span>
+                  </div>
+                </td>
+                <td>
+                  <button class="edit-btn" @click="select(u)" title="Edit user">
+                    <span class="edit-icon">✏️</span>
+                    <span>Edit</span>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div v-else class="empty-state">
+          <div class="empty-icon">👥</div>
+          <h3>No Users Yet</h3>
+          <p>Get started by creating your first user account</p>
+          <button class="create-first-btn" @click="openCreate">
+            <span>➕</span>
+            <span>Create First User</span>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Error Alert -->
-    <div v-if="error" class="error-alert">
-      <span class="alert-icon">⚠️</span>
-      <span>{{ error }}</span>
-    </div>
-
-    <!-- Users Table Card -->
-    <div class="table-card">
-      <div v-if="loading && !users.length" class="loading-state">
-        <div class="spinner"></div>
-        <p>Loading users...</p>
-      </div>
-
-      <div v-else-if="users.length" class="table-container">
-        <table class="modern-table">
-          <thead>
-            <tr>
-              <th>User</th>
-              <th>Contact</th>
-              <th>Roles</th>
-              <th class="actions-column">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="u in users" :key="u.id" class="table-row">
-              <td>
-                <div class="user-cell">
-                  <div class="user-avatar">
-                    {{ getUserInitials(u) }}
-                  </div>
-                  <div class="user-info">
-                    <div class="user-name">{{ u.name || 'Unnamed' }}</div>
-                    <div class="user-phone">{{ u.phone }}</div>
-                  </div>
-                </div>
-              </td>
-              <td>
-                <div class="contact-cell">
-                  <span v-if="u.email" class="email-text">{{ u.email }}</span>
-                  <span v-else class="no-email">—</span>
-                </div>
-              </td>
-              <td>
-                <div class="roles-cell">
-                  <span v-if="u.roles && u.roles.length" v-for="r in u.roles" :key="r" class="role-badge">{{ r }}</span>
-                  <span v-else class="no-roles">No roles</span>
-                </div>
-              </td>
-              <td>
-                <button class="edit-btn" @click="select(u)" title="Edit user">
-                  <span class="edit-icon">✏️</span>
-                  <span>Edit</span>
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div v-else class="empty-state">
-        <div class="empty-icon">👥</div>
-        <h3>No Users Yet</h3>
-        <p>Get started by creating your first user account</p>
-        <button class="create-first-btn" @click="openCreate">
-          <span>➕</span>
-          <span>Create First User</span>
-        </button>
-      </div>
-    </div>
+    <RightDrawer ref="drawer" :title="form.id ? 'Update User' : 'Create User'">
+      <form @submit.prevent="submit" class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Phone</label>
+          <input v-model="form.phone" class="form-control" required />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Password</label>
+          <input
+            v-model="form.password"
+            :required="!form.id"
+            type="password"
+            class="form-control"
+          />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Name</label>
+          <input v-model="form.name" class="form-control" />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Email</label>
+          <input v-model="form.email" type="email" class="form-control" />
+        </div>
+        <div class="col-12">
+          <label class="form-label">Roles</label>
+          <div class="border rounded p-2">
+            <div class="form-check" v-for="role in rolesList" :key="role.id">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                :id="'role_' + role.id"
+                :value="role.name"
+                v-model="selectedRoles"
+              />
+              <label class="form-check-label" :for="'role_' + role.id">{{
+                role.name
+              }}</label>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 d-flex gap-2">
+          <button class="btn btn-primary" :disabled="saving">
+            {{ saving ? "Saving..." : form.id ? "Update" : "Create" }}
+          </button>
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            @click="reset"
+          >
+            Reset
+          </button>
+        </div>
+        <div class="col-12" v-if="msg">
+          <div class="alert alert-success mb-0">{{ msg }}</div>
+        </div>
+        <div class="col-12" v-if="formError">
+          <div class="alert alert-danger mb-0">{{ formError }}</div>
+        </div>
+      </form>
+    </RightDrawer>
   </div>
-
-  <RightDrawer ref="drawer" :title="form.id ? 'Update User' : 'Create User'">
-    <form @submit.prevent="submit" class="row g-3">
-      <div class="col-md-6">
-        <label class="form-label">Phone</label>
-        <input v-model="form.phone" class="form-control" required />
-      </div>
-      <div class="col-md-6">
-        <label class="form-label">Password</label>
-        <input v-model="form.password" :required="!form.id" type="password" class="form-control" />
-      </div>
-      <div class="col-md-6">
-        <label class="form-label">Name</label>
-        <input v-model="form.name" class="form-control" />
-      </div>
-      <div class="col-md-6">
-        <label class="form-label">Email</label>
-        <input v-model="form.email" type="email" class="form-control" />
-      </div>
-      <div class="col-12">
-        <label class="form-label">Roles</label>
-        <div class="border rounded p-2">
-          <div class="form-check" v-for="role in rolesList" :key="role.id">
-            <input class="form-check-input" type="checkbox" :id="'role_' + role.id" :value="role.name" v-model="selectedRoles" />
-            <label class="form-check-label" :for="'role_' + role.id">{{ role.name }}</label>
-          </div>
-        </div>
-      </div>
-      <div class="col-12 d-flex gap-2">
-        <button class="btn btn-primary" :disabled="saving">{{ saving ? 'Saving...' : (form.id ? 'Update' : 'Create') }}</button>
-        <button type="button" class="btn btn-outline-secondary" @click="reset">Reset</button>
-      </div>
-      <div class="col-12" v-if="msg">
-        <div class="alert alert-success mb-0">{{ msg }}</div>
-      </div>
-      <div class="col-12" v-if="formError">
-        <div class="alert alert-danger mb-0">{{ formError }}</div>
-      </div>
-    </form>
-  </RightDrawer>
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue';
-import { api } from '../composables/useApi';
-import { useAuthStore } from '../stores/auth';
-import RightDrawer from '../components/RightDrawer.vue';
+import { reactive, ref, onMounted } from "vue";
+import { api } from "../composables/useApi";
+import { useAuthStore } from "../stores/auth";
+import RightDrawer from "../components/RightDrawer.vue";
 
 const auth = useAuthStore();
 const users = ref([]);
@@ -146,32 +186,35 @@ const rolesList = ref([]);
 const selectedRoles = ref([]);
 const loading = ref(false);
 const saving = ref(false);
-const error = ref('');
-const formError = ref('');
-const msg = ref('');
-const form = reactive({ id: '', phone: '', password: '', name: '', email: '' });
+const error = ref("");
+const formError = ref("");
+const msg = ref("");
+const form = reactive({ id: "", phone: "", password: "", name: "", email: "" });
 const drawer = ref(null);
 
 function getUserInitials(user) {
   if (user.name) {
     return user.name
-      .split(' ')
-      .map(n => n[0])
-      .join('')
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
       .toUpperCase()
       .substring(0, 2);
   }
-  return user.phone ? user.phone.substring(0, 2) : '??';
+  return user.phone ? user.phone.substring(0, 2) : "??";
 }
 
 async function load() {
   loading.value = true;
-  error.value = '';
+  error.value = "";
   try {
-    const tokenValue = typeof auth.token === 'object' && auth.token.value ? auth.token.value : auth.token;
+    const tokenValue =
+      typeof auth.token === "object" && auth.token.value
+        ? auth.token.value
+        : auth.token;
     const [usersRes, rolesRes] = await Promise.all([
-      api.get('/users', { token: tokenValue }),
-      api.get('/roles', { token: tokenValue })
+      api.get("/users", { token: tokenValue }),
+      api.get("/roles", { token: tokenValue }),
     ]);
     users.value = usersRes.data.users;
     rolesList.value = rolesRes.data.roles;
@@ -184,18 +227,31 @@ async function load() {
 
 async function submit() {
   saving.value = true;
-  formError.value = '';
-  msg.value = '';
+  formError.value = "";
+  msg.value = "";
   try {
-    const tokenValue = typeof auth.token === 'object' && auth.token.value ? auth.token.value : auth.token;
+    const tokenValue =
+      typeof auth.token === "object" && auth.token.value
+        ? auth.token.value
+        : auth.token;
     const roles = selectedRoles.value.length ? selectedRoles.value : undefined;
     if (form.id) {
-      const res = await api.put(`/users/${form.id}`, { ...form, roles }, { token: tokenValue });
-      msg.value = 'Updated';
-      users.value = users.value.map((u) => (u.id === form.id ? res.data.user : u));
+      const res = await api.put(
+        `/users/${form.id}`,
+        { ...form, roles },
+        { token: tokenValue }
+      );
+      msg.value = "Updated";
+      users.value = users.value.map((u) =>
+        u.id === form.id ? res.data.user : u
+      );
     } else {
-      const res = await api.post('/users', { ...form, roles }, { token: tokenValue });
-      msg.value = 'Created';
+      const res = await api.post(
+        "/users",
+        { ...form, roles },
+        { token: tokenValue }
+      );
+      msg.value = "Created";
       users.value.push(res.data.user);
     }
     reset();
@@ -209,19 +265,19 @@ async function submit() {
 function select(u) {
   form.id = u.id;
   form.phone = u.phone;
-  form.password = '';
-  form.name = u.name || '';
-  form.email = u.email || '';
-  selectedRoles.value = (u.roles || []);
+  form.password = "";
+  form.name = u.name || "";
+  form.email = u.email || "";
+  selectedRoles.value = u.roles || [];
   drawer.value?.open();
 }
 
 function reset() {
-  form.id = '';
-  form.phone = '';
-  form.password = '';
-  form.name = '';
-  form.email = '';
+  form.id = "";
+  form.phone = "";
+  form.password = "";
+  form.name = "";
+  form.email = "";
   selectedRoles.value = [];
 }
 
@@ -230,7 +286,9 @@ function openCreate() {
   drawer.value?.open();
 }
 
-load();
+onMounted(() => {
+  load();
+});
 </script>
 
 <style scoped>
@@ -264,7 +322,11 @@ load();
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.1) 0%,
+    rgba(118, 75, 162, 0.1) 100%
+  );
   padding: 0.5rem 1rem;
   border-radius: 20px;
   font-size: 0.875rem;
@@ -341,7 +403,9 @@ load();
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ===== Error Alert ===== */
@@ -511,7 +575,11 @@ load();
   display: inline-flex;
   align-items: center;
   padding: 0.375rem 0.75rem;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.1) 0%,
+    rgba(118, 75, 162, 0.1) 100%
+  );
   border: 1px solid rgba(102, 126, 234, 0.2);
   border-radius: 6px;
   font-size: 0.8rem;
@@ -541,7 +609,11 @@ load();
 }
 
 .edit-btn:hover {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.1) 0%,
+    rgba(118, 75, 162, 0.1) 100%
+  );
   border-color: rgba(102, 126, 234, 0.3);
   color: #667eea;
   transform: translateY(-2px);

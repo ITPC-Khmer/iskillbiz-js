@@ -7,8 +7,12 @@
           <span class="badge-icon">✨</span>
           <span>Admin Dashboard</span>
         </div>
-        <h1 class="welcome-title">Welcome back, {{ auth.user?.name || 'User' }}!</h1>
-        <p class="welcome-subtitle">Here's what's happening with your workspace today</p>
+        <h1 class="welcome-title">
+          Welcome back, {{ auth.user?.name || "User" }}!
+        </h1>
+        <p class="welcome-subtitle">
+          Here's what's happening with your workspace today
+        </p>
       </div>
       <div class="welcome-decoration">
         <div class="decoration-circle"></div>
@@ -49,8 +53,8 @@
               {{ getUserInitials() }}
             </div>
             <div class="profile-details">
-              <div class="profile-name">{{ auth.user?.name || 'Unknown' }}</div>
-              <div class="profile-phone">{{ auth.user?.phone || 'N/A' }}</div>
+              <div class="profile-name">{{ auth.user?.name || "Unknown" }}</div>
+              <div class="profile-phone">{{ auth.user?.phone || "N/A" }}</div>
             </div>
           </div>
           <div class="info-divider"></div>
@@ -63,7 +67,9 @@
           </div>
           <div class="info-section">
             <div class="info-label">Member Since</div>
-            <div class="info-value">{{ formatDate(auth.user?.created_at) }}</div>
+            <div class="info-value">
+              {{ formatDate(auth.user?.created_at) }}
+            </div>
           </div>
         </div>
       </div>
@@ -80,7 +86,11 @@
         <div class="card-body-custom">
           <div class="roles-list">
             <div v-if="auth.user?.roles?.length" class="role-items">
-              <div v-for="role in auth.user.roles" :key="role" class="role-item">
+              <div
+                v-for="role in auth.user.roles"
+                :key="role"
+                class="role-item"
+              >
                 <span class="role-icon">🎭</span>
                 <span class="role-name">{{ role }}</span>
               </div>
@@ -100,11 +110,17 @@
             <span class="title-icon">🔐</span>
             Your Permissions
           </h3>
-          <span class="count-badge">{{ auth.user?.permissions?.length || 0 }}</span>
+          <span class="count-badge">{{
+            auth.user?.permissions?.length || 0
+          }}</span>
         </div>
         <div class="card-body-custom">
           <div v-if="auth.user?.permissions?.length" class="permissions-grid">
-            <div v-for="permission in auth.user.permissions" :key="permission" class="permission-tag">
+            <div
+              v-for="permission in auth.user.permissions"
+              :key="permission"
+              class="permission-tag"
+            >
               <span class="permission-icon">✓</span>
               <span class="permission-name">{{ permission }}</span>
             </div>
@@ -126,7 +142,12 @@
         </div>
         <div class="card-body-custom">
           <div class="actions-grid">
-            <RouterLink v-for="action in quickActions" :key="action.path" :to="action.path" class="action-button">
+            <RouterLink
+              v-for="action in quickActions"
+              :key="action.path"
+              :to="action.path"
+              class="action-button"
+            >
               <div class="action-icon" :style="{ background: action.color }">
                 {{ action.icon }}
               </div>
@@ -150,8 +171,15 @@
         </div>
         <div class="card-body-custom">
           <div class="activity-list">
-            <div v-for="activity in recentActivity" :key="activity.id" class="activity-item">
-              <div class="activity-icon" :style="{ background: activity.color }">
+            <div
+              v-for="activity in recentActivity"
+              :key="activity.id"
+              class="activity-item"
+            >
+              <div
+                class="activity-icon"
+                :style="{ background: activity.color }"
+              >
                 {{ activity.icon }}
               </div>
               <div class="activity-content">
@@ -167,132 +195,135 @@
 </template>
 
 <script setup>
-import { useAuthStore } from '../stores/auth';
-import { RouterLink } from 'vue-router';
-import { computed } from 'vue';
+import { useAuthStore } from "../stores/auth";
+import { RouterLink } from "vue-router";
+import { computed, onMounted } from "vue";
 
 const auth = useAuthStore();
 
 const stats = computed(() => [
   {
-    icon: '👥',
-    value: '1,234',
-    label: 'Total Users',
-    trend: '+12% from last month',
-    trendIcon: '📈',
-    trendClass: 'trend-up',
-    color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+    icon: "👥",
+    value: "1,234",
+    label: "Total Users",
+    trend: "+12% from last month",
+    trendIcon: "📈",
+    trendClass: "trend-up",
+    color: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
   },
   {
-    icon: '🔑',
+    icon: "🔑",
     value: auth.user?.roles?.length || 0,
-    label: 'Your Roles',
-    trend: 'Active',
-    trendIcon: '✓',
-    trendClass: 'trend-neutral',
-    color: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+    label: "Your Roles",
+    trend: "Active",
+    trendIcon: "✓",
+    trendClass: "trend-neutral",
+    color: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
   },
   {
-    icon: '🔐',
+    icon: "🔐",
     value: auth.user?.permissions?.length || 0,
-    label: 'Permissions',
-    trend: 'Granted',
-    trendIcon: '🔓',
-    trendClass: 'trend-neutral',
-    color: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
+    label: "Permissions",
+    trend: "Granted",
+    trendIcon: "🔓",
+    trendClass: "trend-neutral",
+    color: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
   },
   {
-    icon: '⚡',
-    value: '24/7',
-    label: 'System Status',
-    trend: 'All systems operational',
-    trendIcon: '✓',
-    trendClass: 'trend-up',
-    color: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'
-  }
+    icon: "⚡",
+    value: "24/7",
+    label: "System Status",
+    trend: "All systems operational",
+    trendIcon: "✓",
+    trendClass: "trend-up",
+    color: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
+  },
 ]);
 
 const quickActions = [
   {
-    icon: '👤',
-    title: 'View Profile',
-    description: 'Manage your personal information',
-    path: '/me',
-    color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+    icon: "👤",
+    title: "View Profile",
+    description: "Manage your personal information",
+    path: "/me",
+    color: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
   },
   {
-    icon: '👥',
-    title: 'Manage Users',
-    description: 'Add, edit, or remove users',
-    path: '/admin/users',
-    color: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+    icon: "👥",
+    title: "Manage Users",
+    description: "Add, edit, or remove users",
+    path: "/admin/users",
+    color: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
   },
   {
-    icon: '🔑',
-    title: 'Configure Roles',
-    description: 'Set up user roles and access',
-    path: '/admin/roles',
-    color: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
+    icon: "🔑",
+    title: "Configure Roles",
+    description: "Set up user roles and access",
+    path: "/admin/roles",
+    color: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
   },
   {
-    icon: '🔐',
-    title: 'Manage Permissions',
-    description: 'Control system permissions',
-    path: '/admin/permissions',
-    color: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'
-  }
+    icon: "🔐",
+    title: "Manage Permissions",
+    description: "Control system permissions",
+    path: "/admin/permissions",
+    color: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
+  },
 ];
 
 const recentActivity = [
   {
     id: 1,
-    icon: '👤',
-    title: 'You logged in successfully',
-    time: 'Just now',
-    color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+    icon: "👤",
+    title: "You logged in successfully",
+    time: "Just now",
+    color: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
   },
   {
     id: 2,
-    icon: '🔑',
-    title: 'Role permissions updated',
-    time: '2 hours ago',
-    color: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+    icon: "🔑",
+    title: "Role permissions updated",
+    time: "2 hours ago",
+    color: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
   },
   {
     id: 3,
-    icon: '👥',
-    title: 'New user registered',
-    time: '5 hours ago',
-    color: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
+    icon: "👥",
+    title: "New user registered",
+    time: "5 hours ago",
+    color: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
   },
   {
     id: 4,
-    icon: '🔐',
-    title: 'Security settings updated',
-    time: 'Yesterday',
-    color: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'
-  }
+    icon: "🔐",
+    title: "Security settings updated",
+    time: "Yesterday",
+    color: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
+  },
 ];
 
 function getUserInitials() {
   const name = auth.user?.name;
   if (name) {
     return name
-      .split(' ')
-      .map(n => n[0])
-      .join('')
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
       .toUpperCase()
       .substring(0, 2);
   }
-  return '??';
+  return "??";
 }
 
 function formatDate(dateString) {
-  if (!dateString) return 'N/A';
+  if (!dateString) return "N/A";
   const date = new Date(dateString);
-  const options = { year: 'numeric', month: 'short', day: 'numeric' };
-  return date.toLocaleDateString('en-US', options);
+  const options = { year: "numeric", month: "short", day: "numeric" };
+  return date.toLocaleDateString("en-US", options);
 }
+onMounted(() => {
+  getUserInitials();
+});
 </script>
 
 <style scoped>
@@ -378,7 +409,8 @@ function formatDate(dateString) {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     opacity: 0.1;
   }
@@ -629,14 +661,22 @@ function formatDate(dateString) {
   align-items: center;
   gap: 1rem;
   padding: 1rem;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.05) 0%,
+    rgba(118, 75, 162, 0.05) 100%
+  );
   border-radius: 12px;
   border: 1px solid rgba(102, 126, 234, 0.1);
   transition: all 0.3s ease;
 }
 
 .role-item:hover {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.1) 0%,
+    rgba(118, 75, 162, 0.1) 100%
+  );
   border-color: rgba(102, 126, 234, 0.2);
   transform: translateX(4px);
 }
@@ -662,7 +702,11 @@ function formatDate(dateString) {
   align-items: center;
   gap: 0.5rem;
   padding: 0.625rem 1rem;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.05) 0%,
+    rgba(118, 75, 162, 0.05) 100%
+  );
   border: 1px solid rgba(102, 126, 234, 0.2);
   border-radius: 8px;
   font-size: 0.875rem;
@@ -672,7 +716,11 @@ function formatDate(dateString) {
 }
 
 .permission-tag:hover {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.1) 0%,
+    rgba(118, 75, 162, 0.1) 100%
+  );
   transform: translateY(-2px);
 }
 
@@ -726,13 +774,17 @@ function formatDate(dateString) {
 }
 
 .action-button::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.05) 0%,
+    rgba(118, 75, 162, 0.05) 100%
+  );
   opacity: 0;
   transition: opacity 0.3s ease;
 }
