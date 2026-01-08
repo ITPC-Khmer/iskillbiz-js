@@ -238,9 +238,9 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useFacebook } from '@/composables/useFacebook';
-import { useNotifications } from '@/composables/useNotifications';
-import { useFacebookAutomations } from '@/composables/useFacebookAutomations';
+import { useFacebook } from '../composables/useFacebook';
+import { useNotifications } from '../composables/useNotifications';
+import { useFacebookAutomations } from '../composables/useFacebookAutomations';
 
 const fb = useFacebook();
 const fbAuto = useFacebookAutomations();
