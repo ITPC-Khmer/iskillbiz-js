@@ -42,6 +42,87 @@ router.get('/oauth/url', requireAuth, (req, res, next) => {
 });
 
 /**
+ * Handle Facebook OAuth callback (POST - from frontend)
+ */
+router.post('/oauth/callback', requireAuth, async (req, res, next) => {
+  try {
+    const { code, state } = req.body;
+
+    if (!code) {
+      return res.error('Authorization code is required', 400);
+    }
+
+    // Verify state (optional but recommended)
+    // In this flow, state validation might be less critical if we trust the user is authenticated via requireAuth
+    // But ideally we should decode state and check userId matches req.user.id
+    if (state) {
+        try {
+            const stateData = JSON.parse(Buffer.from(state, 'base64').toString());
+            if (stateData.userId !== req.user.id) {
+                return res.error('Invalid state parameter: User mismatch', 400);
+            }
+        } catch (e) {
+            console.warn('State validation failed:', e.message);
+        }
+    }
+
+    // Exchange code for access token
+    const tokenResponse = await axios.get('https://graph.facebook.com/v18.0/oauth/access_token', {
+      params: {
+        client_id: FACEBOOK_APP_ID,
+        client_secret: FACEBOOK_APP_SECRET,
+        redirect_uri: FACEBOOK_REDIRECT_URL,
+        code
+      }
+    });
+
+    const { access_token } = tokenResponse.data;
+
+    // Get user info
+    const userResponse = await axios.get('https://graph.facebook.com/v18.0/me', {
+      params: {
+        fields: 'id,name,email',
+        access_token
+      }
+    });
+
+    const fbUser = userResponse.data;
+
+    // Create or update Facebook account
+    const [account, created] = await FacebookAccount.findOrCreate({
+      where: {
+        user_id: req.user.id,
+        facebook_user_id: fbUser.id
+      },
+      defaults: {
+        user_id: req.user.id,
+        facebook_user_id: fbUser.id,
+        access_token,
+        name: fbUser.name,
+        email: fbUser.email,
+        status: 'active'
+      }
+    });
+
+    if (!created) {
+      await account.update({
+        access_token,
+        name: fbUser.name,
+        email: fbUser.email,
+        status: 'active'
+      });
+    }
+
+    res.success({ account }, 'Facebook account connected successfully');
+  } catch (err) {
+     if (err.response?.data?.error) {
+         return res.error(err.response.data.error.message, 400);
+     }
+    next(err);
+  }
+});
+
+/**
  * Handle Facebook OAuth callback (GET - direct redirect from Facebook)
  */
 router.get('/oauth/callback', async (req, res, next) => {
@@ -168,4 +249,3 @@ router.post('/oauth/extend-token', requireAuth, async (req, res, next) => {
 });
 
 module.exports = router;
-

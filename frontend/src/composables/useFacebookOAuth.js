@@ -88,18 +88,46 @@ export function useFacebookOAuth() {
       );
 
       return new Promise((resolve, reject) => {
-        // Poll for popup close
+        let isResolved = false;
+
+        // Message listener
+        const messageHandler = async (event) => {
+             // Basic security check (optional, check origin)
+             // if (event.origin !== window.location.origin) return;
+
+             if (event.data?.type === 'facebook-oauth-success') {
+                 try {
+                     const { code, state } = event.data;
+                     if (!code) throw new Error('No code received');
+
+                     // Exchange code for token via backend
+                     const result = await handleCallback(code, state);
+                     isResolved = true;
+                     resolve(result);
+                 } catch (e) {
+                     isResolved = true;
+                     reject(e);
+                 } finally {
+                     if (popup) popup.close();
+                     window.removeEventListener('message', messageHandler);
+                 }
+             } else if (event.data?.type === 'facebook-oauth-error') {
+                 isResolved = true;
+                 reject(new Error(event.data.error || 'OAuth failed'));
+                 if (popup) popup.close();
+                 window.removeEventListener('message', messageHandler);
+             }
+        };
+
+        window.addEventListener('message', messageHandler);
+
+        // Poll for popup close (user closed it manually)
         const pollTimer = setInterval(() => {
           if (popup && popup.closed) {
             clearInterval(pollTimer);
-            // Check URL params for success/error after popup closes
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('success')) {
-              resolve({ success: true, account_id: urlParams.get('account_id') });
-            } else if (urlParams.get('error')) {
-              reject(new Error(urlParams.get('error')));
-            } else {
-              reject(new Error('OAuth popup closed'));
+            window.removeEventListener('message', messageHandler);
+            if (!isResolved) {
+                reject(new Error('OAuth popup closed by user'));
             }
           }
         }, 500);
@@ -120,4 +148,3 @@ export function useFacebookOAuth() {
     openOAuthPopup
   };
 }
-

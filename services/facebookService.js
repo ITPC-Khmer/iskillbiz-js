@@ -132,7 +132,7 @@ class FacebookService {
       // Get conversations from Facebook
       const { data } = await axios.get(`${this.graphApiUrl}/${page.page_id}/conversations`, {
         params: {
-          fields: 'id,participants,unread_count,message_count,updated_time,messages.limit(1){id,from,message,created_time}',
+          fields: 'id,participants,unread_count,message_count,updated_time,can_reply,subject,messages.limit(1){id,from,message,created_time}',
           access_token: page.page_access_token
         }
       });
@@ -151,8 +151,11 @@ class FacebookService {
           message_count: conv.message_count || 0,
           last_message_time: lastMessage?.created_time,
           last_message_text: lastMessage?.message,
+          can_reply: conv.can_reply ?? true,
+          subject: conv.subject,
+          participants_data: conv.participants?.data,
           is_answered: conv.unread_count === 0,
-          status: 'open'
+          status: 'active'
         }, {
           returning: true
         });
@@ -185,7 +188,7 @@ class FacebookService {
       // Get messages from Facebook
       const { data } = await axios.get(`${this.graphApiUrl}/${conversationId}/messages`, {
         params: {
-          fields: 'id,from,message,created_time,attachments',
+          fields: 'id,from,to,message,created_time,attachments,sticker,tags,reply_to',
           access_token: page.page_access_token,
           limit: 100
         }
@@ -198,7 +201,11 @@ class FacebookService {
           message_id: msg.id,
           from_id: msg.from.id,
           from_name: msg.from.name,
+          to_data: msg.to?.data,
           message: msg.message,
+          sticker: msg.sticker,
+          reply_to: msg.reply_to,
+          tags: msg.tags,
           created_time: msg.created_time,
           is_from_page: msg.from.id === page.page_id,
           has_attachments: !!msg.attachments,

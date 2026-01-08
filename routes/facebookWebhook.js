@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 const facebookService = require('../services/facebookService');
 const facebookAutomationService = require('../services/facebookAutomationService');
-const { FacebookPage } = require('../models');
+const facebookInstantReplyService = require('../services/facebookInstantReplyService');
+const { FacebookPage, FacebookContact } = require('../models');
 
 // Webhook verification (GET)
 router.get('/webhook', (req, res) => {
@@ -69,12 +70,17 @@ async function handleMessagingEvent(page, event) {
 
   try {
     // Handle message
-    if (event.message) {
+    if (event.message && !event.message.is_echo) {
       const message = event.message.text;
 
       // Sync the conversation
       const conversationId = `t_${senderId}`;
       await facebookService.syncMessages(conversationId);
+
+      // Get sender name for personalization
+      let senderName = '';
+      const contact = await FacebookContact.findOne({ where: { facebook_page_id: page.id, facebook_user_id: senderId } });
+      if (contact) senderName = contact.name;
 
       // Process keywords
       const keywordMatched = await facebookAutomationService.processKeywords(
@@ -83,13 +89,22 @@ async function handleMessagingEvent(page, event) {
         senderId
       );
 
-      // If no keyword matched, check for away message
-      if (!keywordMatched) {
-        await facebookAutomationService.sendAwayMessage(page.id, senderId);
-      }
+      // If keyword matched, stop further processing
+      if (keywordMatched) return;
 
-      // Request contact info if needed
-      await facebookAutomationService.requestContactInfo(page.id, senderId);
+      // Check for away message
+      const awayMessageSent = await facebookAutomationService.sendAwayMessage(page.id, senderId);
+
+      // If away message sent, we might stop or continue depending on policy. Usually stop.
+      if (awayMessageSent) return;
+
+      // Check for Instant Reply (Welcome/Default)
+      const instantReplySent = await facebookInstantReplyService.sendInstantReply(page.id, senderId, senderName);
+
+      // Request contact info if needed and nothing else sent
+      if (!instantReplySent) {
+          await facebookAutomationService.requestContactInfo(page.id, senderId);
+      }
     }
 
     // Handle message read
@@ -134,4 +149,3 @@ async function handleChangeEvent(page, change) {
 }
 
 module.exports = router;
-

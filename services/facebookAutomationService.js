@@ -224,31 +224,63 @@ class FacebookAutomationService {
    * Request contact information from user
    */
   async requestContactInfo(facebookPageId, senderId, fields = ['email', 'phone']) {
-    const automation = await FacebookAutomation.findOne({
-      where: {
-        facebook_page_id: facebookPageId,
-        type: 'contact_info',
-        is_active: true
-      }
-    });
+    try {
+        // Check if we already have the contact info
+        const { FacebookContact } = require('../models');
+        const contact = await FacebookContact.findOne({
+            where: {
+                facebook_page_id: facebookPageId,
+                facebook_user_id: senderId
+            }
+        });
 
-    if (automation) {
-      const message = automation.config?.message ||
-        `Thank you for contacting us! Could you please provide your ${fields.join(' and ')} so we can assist you better?`;
+        if (contact) {
+            const hasEmail = fields.includes('email') && contact.email;
+            const hasPhone = fields.includes('phone') && contact.phone;
 
-      await facebookService.sendMessage(facebookPageId, senderId, message);
+            if (hasEmail && hasPhone) {
+                // We have all info, don't ask
+                return false;
+            }
+        }
 
-      await automation.update({
-        trigger_count: automation.trigger_count + 1,
-        last_triggered_at: new Date()
-      });
+        const automation = await FacebookAutomation.findOne({
+          where: {
+            facebook_page_id: facebookPageId,
+            type: 'contact_info',
+            is_active: true
+          }
+        });
 
-      return true;
+        if (automation) {
+          // Check if we recently asked (to avoid spamming)
+          if (automation.last_triggered_at) {
+              const diffMs = new Date() - new Date(automation.last_triggered_at);
+              const diffMins = Math.floor(diffMs / 60000);
+              // Avoid asking more than once every hour globally for the page,
+              // or ideally we should track per user, but for now simple throttle
+              if (diffMins < 60) return false;
+          }
+
+          const message = automation.config?.message ||
+            `Thank you for contacting us! Could you please provide your ${fields.join(' and ')} so we can assist you better?`;
+
+          await facebookService.sendMessage(facebookPageId, senderId, message);
+
+          await automation.update({
+            trigger_count: automation.trigger_count + 1,
+            last_triggered_at: new Date()
+          });
+
+          return true;
+        }
+
+        return false;
+    } catch (e) {
+        console.error('Error in requestContactInfo:', e);
+        return false;
     }
-
-    return false;
   }
 }
 
 module.exports = new FacebookAutomationService();
-
