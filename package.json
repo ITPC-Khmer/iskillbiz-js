@@ -1,0 +1,26 @@
+{
+  "name": "iskillbiz-js",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "npm run build:css && node ./bin/www",
+    "build:css": "sass public/stylesheets:public/stylesheets --no-source-map",
+    "watch:css": "sass --watch public/stylesheets:public/stylesheets --no-source-map"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "~1.4.4",
+    "connect-session-sequelize": "^7.1.7",
+    "debug": "~2.6.9",
+    "dotenv": "^16.4.5",
+    "express": "~4.16.1",
+    "express-session": "^1.18.0",
+    "http-errors": "~1.6.3",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "~1.9.1",
+    "mysql2": "^3.11.3",
+    "pug": "2.0.0-beta11",
+    "sass": "^1.80.0",
+    "sequelize": "^6.37.3"
+  }
+}
