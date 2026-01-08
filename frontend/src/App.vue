@@ -55,11 +55,11 @@ const auth = useAuthStore();
 
 const layout = computed(() => route.meta.layout || 'app');
 const navItems = [
-  { label: 'Dashboard', path: '/' },
-  { label: 'Profile', path: '/me' },
-  { label: 'Users', path: '/admin/users' },
-  { label: 'Roles', path: '/admin/roles' },
-  { label: 'Permissions', path: '/admin/permissions' }
+  { label: '📊 Dashboard', path: '/' },
+  { label: '👤 Profile', path: '/me' },
+  { label: '👥 Users', path: '/admin/users' },
+  { label: '🔑 Roles', path: '/admin/roles' },
+  { label: '🔐 Permissions', path: '/admin/permissions' }
 ];
 
 function routeActive(path) {
@@ -72,7 +72,22 @@ async function doLogout() {
 }
 
 onMounted(() => {
-  if (auth.token) auth.fetchMe().catch(() => auth.logout());
+  if (auth.token.value) auth.fetchMe().catch(() => auth.logout());
 });
 </script>
+
+<style scoped>
+.nav-link {
+  transition: all 0.2s ease;
+  border-radius: 6px;
+}
+.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+.nav-link.router-link-active {
+  background-color: #0d6efd;
+  color: white;
+  font-weight: 500;
+}
+</style>
 

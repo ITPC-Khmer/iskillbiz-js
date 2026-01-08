@@ -20,6 +20,7 @@ const usersRouter = require('./routes/users');
 const app = express();
 const sessionStore = new SequelizeStore({ db: sequelize });
 app.set('sessionStore', sessionStore);
+app.set('etag', false);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -30,6 +31,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors({ origin: allowedOrigins, credentials: true }));
+// Prevent caching of API responses
+app.use((req, res, next) => {
+  if (req.path.startsWith('/auth') || req.path.startsWith('/users') || req.path.startsWith('/roles') || req.path.startsWith('/permissions')) {
+    res.set('Cache-Control', 'no-store');
+  }
+  next();
+});
 app.use(responseHelpers);
 app.use(session({
   secret: process.env.SESSION_SECRET || 'change-me',

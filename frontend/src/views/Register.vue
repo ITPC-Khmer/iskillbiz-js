@@ -1,33 +1,35 @@
 <template>
   <div class="container" style="max-width: 560px;">
-    <div class="card shadow-sm">
-      <div class="card-body">
-        <h3 class="card-title mb-3">Register</h3>
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-4">
+        <h4 class="card-title mb-1">Create Account</h4>
+        <p class="text-muted small mb-4">Join iSkillBiz and start managing your workspace</p>
         <form @submit.prevent="submit" novalidate>
-          <div class="row g-3">
+          <div class="row g-2">
             <div class="col-md-6">
-              <label class="form-label">Phone</label>
+              <label class="form-label">Phone *</label>
               <input v-model="form.phone" class="form-control" required placeholder="+10000000001" />
             </div>
             <div class="col-md-6">
-              <label class="form-label">Password</label>
+              <label class="form-label">Password *</label>
               <input v-model="form.password" type="password" class="form-control" required />
             </div>
             <div class="col-md-6">
-              <label class="form-label">Name</label>
-              <input v-model="form.name" class="form-control" />
+              <label class="form-label">Full Name</label>
+              <input v-model="form.name" class="form-control" placeholder="John Doe" />
             </div>
             <div class="col-md-6">
               <label class="form-label">Email</label>
-              <input v-model="form.email" type="email" class="form-control" />
+              <input v-model="form.email" type="email" class="form-control" placeholder="john@example.com" />
             </div>
           </div>
-          <button class="btn btn-primary w-100 mt-3" :disabled="loading">{{ loading ? 'Creating…' : 'Create account' }}</button>
-          <div class="text-center mt-3">
-            <RouterLink to="/login">Have an account? Login</RouterLink>
-          </div>
+          <button class="btn btn-primary w-100 mt-3" :disabled="loading">{{ loading ? 'Creating…' : 'Create Account' }}</button>
           <div v-if="error" class="alert alert-danger mt-3">{{ error }}</div>
         </form>
+        <hr />
+        <p class="text-center mb-0">
+          Already have an account? <RouterLink to="/login" class="link-primary">Sign In</RouterLink>
+        </p>
       </div>
     </div>
   </div>

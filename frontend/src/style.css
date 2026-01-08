@@ -14,3 +14,31 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 .table th, .table td { border: 1px solid #e2e8f0; padding: 8px; text-align: left; }
 .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; background: #e2e8f0; margin-right: 4px; }
 .form-row { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 8px; }
+.header-card {
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.header-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important;
+}
+
+.btn-primary {
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(13, 110, 253, 0.3);
+}
+
+.btn-sm {
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.badge {
+  border-radius: 6px;
+  letter-spacing: 0.3px;
+  font-size: 0.85rem;
+}
