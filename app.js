@@ -15,6 +15,7 @@ const facebookRouter = require('./routes/facebook');
 const facebookAutomationsRouter = require('./routes/facebookAutomations');
 const facebookInstantReplyRouter = require('./routes/facebookInstantReply');
 const facebookFAQRouter = require('./routes/facebookFAQ');
+const facebookSyncRouter = require('./routes/facebookSync');
 const facebookWebhookRouter = require('./routes/facebookWebhook');
 const cors = require('cors');
 const allowedOrigins = (process.env.CLIENT_ORIGINS || 'http://localhost:5173').split(',').map((o) => o.trim()).filter(Boolean);
