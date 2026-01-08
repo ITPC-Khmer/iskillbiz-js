@@ -4,11 +4,32 @@ import {api} from '../composables/useApi';
 
 export const useAuthStore = defineStore('auth', () => {
   const token = ref(localStorage.getItem('token') || '');
-  const user = ref(null);
+
+  // Initialize user from localStorage if available
+  let storedUser = null;
+  try {
+    const userStr = localStorage.getItem('user');
+    if (userStr) storedUser = JSON.parse(userStr);
+  } catch (e) {
+    // Ignore parse errors
+  }
+  const user = ref(storedUser);
 
   watch(token, (val) => {
     if (val) localStorage.setItem('token', val);
-    else localStorage.removeItem('token');
+    else {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    }
+  });
+
+  // Persist user to localStorage
+  watch(user, (val) => {
+    if (val && val.id) {
+      localStorage.setItem('user', JSON.stringify(val));
+    } else {
+      localStorage.removeItem('user');
+    }
   });
 
   const isAuthed = computed(() => !!token.value);

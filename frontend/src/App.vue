@@ -25,7 +25,7 @@
     <aside :class="['sidebar', { 'sidebar-collapsed': sidebarCollapsed }]">
       <div class="sidebar-header">
         <button class="sidebar-toggle" @click="toggleSidebar">
-          <span class="toggle-icon">{{ sidebarCollapsed ? '☰' : '✕' }}</span>
+          <span class="toggle-icon">{{ sidebarCollapsed ? "☰" : "✕" }}</span>
         </button>
         <Transition name="fade">
           <div v-if="!sidebarCollapsed" class="brand-logo">
@@ -36,18 +36,21 @@
       </div>
 
       <nav class="sidebar-nav">
-        <RouterLink
+        <button
           v-for="item in navItems"
           :key="item.path"
-          :to="item.path"
+          @click="navigateTo(item.path)"
           :class="['nav-item', { active: routeActive(item.path) }]"
           :title="item.label"
+          type="button"
         >
           <span class="nav-icon">{{ item.icon }}</span>
           <Transition name="fade">
-            <span v-if="!sidebarCollapsed" class="nav-label">{{ item.label }}</span>
+            <span v-if="!sidebarCollapsed" class="nav-label">{{
+              item.label
+            }}</span>
           </Transition>
-        </RouterLink>
+        </button>
       </nav>
 
       <div class="sidebar-footer">
@@ -58,9 +61,15 @@
             </div>
             <Transition name="fade">
               <div v-if="!sidebarCollapsed" class="user-details">
-                <div class="user-name">{{ auth.user.name || auth.user.phone }}</div>
+                <div class="user-name">
+                  {{ auth.user.name || auth.user.phone }}
+                </div>
                 <div class="user-roles">
-                  <span v-for="role in auth.user.roles" :key="role" class="role-badge">
+                  <span
+                    v-for="role in auth.user.roles"
+                    :key="role"
+                    class="role-badge"
+                  >
                     {{ role }}
                   </span>
                 </div>
@@ -68,7 +77,12 @@
             </Transition>
           </div>
         </Transition>
-        <button v-if="auth.isAuthed" class="logout-btn" @click="doLogout" :title="sidebarCollapsed ? 'Logout' : ''">
+        <button
+          v-if="auth.isAuthed"
+          class="logout-btn"
+          @click="doLogout"
+          :title="sidebarCollapsed ? 'Logout' : ''"
+        >
           <span class="logout-icon">🚪</span>
           <Transition name="fade">
             <span v-if="!sidebarCollapsed">Logout</span>
@@ -88,7 +102,10 @@
       <div class="content-body">
         <RouterView v-slot="{ Component, route }">
           <Transition name="slide-fade" mode="out-in">
-            <component :is="Component" :key="route.path" />
+            <component
+              :is="Component"
+              :key="route.path + '-' + forceReloadKey"
+            />
           </Transition>
         </RouterView>
       </div>
@@ -97,32 +114,39 @@
 </template>
 
 <script setup>
-import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router';
-import { computed, onMounted, ref } from 'vue';
-import { useAuthStore } from './stores/auth';
+import { RouterView, useRoute, useRouter } from "vue-router";
+import { computed, onMounted, ref } from "vue";
+import { useAuthStore } from "./stores/auth";
 
 const route = useRoute();
 const router = useRouter();
 const auth = useAuthStore();
 
 const sidebarCollapsed = ref(false);
+const forceReloadKey = ref(0);
 
-const layout = computed(() => route.meta.layout || 'app');
+const layout = computed(() => route.meta.layout || "app");
 
 const navItems = [
-  { label: 'Dashboard', icon: '📊', path: '/' },
-  { label: 'Profile', icon: '👤', path: '/me' },
-  { label: 'Users', icon: '👥', path: '/admin/users' },
-  { label: 'Roles', icon: '🔑', path: '/admin/roles' },
-  { label: 'Permissions', icon: '🔐', path: '/admin/permissions' }
+  { label: "Dashboard", icon: "📊", path: "/" },
+  { label: "Profile", icon: "👤", path: "/me" },
+  { label: "Users", icon: "👥", path: "/admin/users" },
+  { label: "Roles", icon: "🔑", path: "/admin/roles" },
+  { label: "Permissions", icon: "🔐", path: "/admin/permissions" },
 ];
 
 const pageInfo = {
-  '/': { title: 'Dashboard', subtitle: 'Overview of your account and activities' },
-  '/me': { title: 'Profile', subtitle: 'Manage your personal information' },
-  '/admin/users': { title: 'Users', subtitle: 'Manage system users' },
-  '/admin/roles': { title: 'Roles', subtitle: 'Configure user roles' },
-  '/admin/permissions': { title: 'Permissions', subtitle: 'Manage access permissions' }
+  "/": {
+    title: "Dashboard",
+    subtitle: "Overview of your account and activities",
+  },
+  "/me": { title: "Profile", subtitle: "Manage your personal information" },
+  "/admin/users": { title: "Users", subtitle: "Manage system users" },
+  "/admin/roles": { title: "Roles", subtitle: "Configure user roles" },
+  "/admin/permissions": {
+    title: "Permissions",
+    subtitle: "Manage access permissions",
+  },
 };
 
 function toggleSidebar() {
@@ -136,31 +160,44 @@ function routeActive(path) {
 function getUserInitials(user) {
   if (user.name) {
     return user.name
-      .split(' ')
-      .map(n => n[0])
-      .join('')
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
       .toUpperCase()
       .substring(0, 2);
   }
-  return user.phone ? user.phone.substring(0, 2) : '??';
+  return user.phone ? user.phone.substring(0, 2) : "??";
 }
 
 function getPageTitle() {
-  return pageInfo[route.path]?.title || 'Dashboard';
+  return pageInfo[route.path]?.title || "Dashboard";
 }
 
 function getPageSubtitle() {
-  return pageInfo[route.path]?.subtitle || 'Manage your account and administration';
+  return (
+    pageInfo[route.path]?.subtitle || "Manage your account and administration"
+  );
+}
+
+function navigateTo(path) {
+  if (route.path === path) {
+    // Already on this route, just force remount by incrementing key
+    forceReloadKey.value++;
+  } else {
+    // Different route, increment key and navigate
+    forceReloadKey.value++;
+    router.push(path);
+  }
 }
 
 async function doLogout() {
   auth.logout();
-  await router.push('/login');
+  await router.push("/login");
 }
 
 onMounted(() => {
   // Load sidebar state from localStorage
-  const savedState = localStorage.getItem('sidebarCollapsed');
+  const savedState = localStorage.getItem("sidebarCollapsed");
   if (savedState !== null) {
     sidebarCollapsed.value = JSON.parse(savedState);
   }
@@ -168,9 +205,9 @@ onMounted(() => {
 });
 
 // Save sidebar state to localStorage
-import { watch } from 'vue';
+import { watch } from "vue";
 watch(sidebarCollapsed, (newValue) => {
-  localStorage.setItem('sidebarCollapsed', JSON.stringify(newValue));
+  localStorage.setItem("sidebarCollapsed", JSON.stringify(newValue));
 });
 </script>
 
@@ -188,20 +225,28 @@ watch(sidebarCollapsed, (newValue) => {
 }
 
 .auth-layout::before {
-  content: '';
+  content: "";
   position: absolute;
   top: -50%;
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.1) 1px,
+    transparent 1px
+  );
   background-size: 50px 50px;
   animation: drift 20s linear infinite;
 }
 
 @keyframes drift {
-  0% { transform: translate(0, 0); }
-  100% { transform: translate(50px, 50px); }
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(50px, 50px);
+  }
 }
 
 .auth-card {
@@ -323,10 +368,17 @@ watch(sidebarCollapsed, (newValue) => {
   position: relative;
   overflow: hidden;
   font-weight: 500;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: inherit;
+  font-family: inherit;
 }
 
 .nav-item::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   top: 0;
@@ -344,7 +396,11 @@ watch(sidebarCollapsed, (newValue) => {
 }
 
 .nav-item.active {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.2) 0%,
+    rgba(118, 75, 162, 0.2) 100%
+  );
   color: white;
 }
 
@@ -625,4 +681,3 @@ watch(sidebarCollapsed, (newValue) => {
   background: #94a3b8;
 }
 </style>
-
