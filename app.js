@@ -11,6 +11,8 @@ const authRouter = require('./routes/auth');
 const responseHelpers = require('./middleware/response');
 const rolesRouter = require('./routes/roles');
 const permissionsRouter = require('./routes/permissions');
+const cors = require('cors');
+const allowedOrigins = (process.env.CLIENT_ORIGINS || 'http://localhost:5173').split(',').map((o) => o.trim()).filter(Boolean);
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
@@ -27,6 +29,7 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(responseHelpers);
 app.use(session({
   secret: process.env.SESSION_SECRET || 'change-me',

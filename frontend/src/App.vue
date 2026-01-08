@@ -1,20 +1,44 @@
 <template>
-  <div v-if="layout === 'auth'" class="min-vh-100 d-flex align-items-center justify-content-center bg-light">
-    <RouterView />
+  <div v-if="layout === 'auth'" class="min-vh-100 d-flex align-items-center justify-content-center bg-light px-3">
+    <div class="card shadow-sm" style="max-width: 520px; width: 100%;">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center mb-3">
+          <div class="fw-bold fs-4 text-primary me-2">iSkillBiz</div>
+          <div class="text-muted">Access your account</div>
+        </div>
+        <RouterView />
+      </div>
+    </div>
   </div>
-  <div v-else class="d-flex min-vh-100">
-    <aside class="p-3 bg-dark text-white" style="width:240px;">
-      <h4 class="mb-3">iSkillBiz</h4>
-      <nav class="nav flex-column">
-        <RouterLink class="nav-link text-white" to="/">Dashboard</RouterLink>
-        <RouterLink class="nav-link text-white" to="/me">Profile</RouterLink>
-        <RouterLink class="nav-link text-white" to="/admin/users">Users</RouterLink>
-        <RouterLink class="nav-link text-white" to="/admin/roles">Roles</RouterLink>
-        <RouterLink class="nav-link text-white" to="/admin/permissions">Permissions</RouterLink>
+  <div v-else class="d-flex min-vh-100 bg-light">
+    <aside class="p-3 bg-dark text-white d-flex flex-column" style="width:260px;">
+      <div class="d-flex align-items-center mb-3">
+        <div class="fw-bold fs-4 text-primary">iSkillBiz</div>
+      </div>
+      <nav class="nav flex-column gap-1">
+        <RouterLink
+          v-for="item in navItems"
+          :key="item.path"
+          :to="item.path"
+          :class="['nav-link rounded', routeActive(item.path) ? 'bg-primary text-white' : 'text-white-50']"
+        >
+          {{ item.label }}
+        </RouterLink>
       </nav>
-      <button v-if="auth.isAuthed" class="btn btn-outline-light btn-sm mt-3" @click="doLogout">Logout</button>
+      <div class="mt-auto pt-3 border-top border-secondary-subtle">
+        <div v-if="auth.user" class="small text-white-50 mb-1">Signed in as</div>
+        <div v-if="auth.user" class="fw-semibold">{{ auth.user.name || auth.user.phone }}</div>
+        <div v-if="auth.user" class="d-flex flex-wrap gap-1 mt-1">
+          <span v-for="role in auth.user.roles" :key="role" class="badge bg-secondary">{{ role }}</span>
+        </div>
+        <button v-if="auth.isAuthed" class="btn btn-outline-light btn-sm w-100 mt-3" @click="doLogout">Logout</button>
+      </div>
     </aside>
-    <main class="flex-grow-1 p-4 bg-light">
+    <main class="flex-grow-1 p-4">
+      <div class="mb-3 d-flex align-items-center gap-2">
+        <div class="fw-bold fs-5">Dashboard</div>
+        <div class="text-muted small">Manage your account and administration</div>
+      </div>
       <RouterView />
     </main>
   </div>
@@ -30,6 +54,17 @@ const router = useRouter();
 const auth = useAuthStore();
 
 const layout = computed(() => route.meta.layout || 'app');
+const navItems = [
+  { label: 'Dashboard', path: '/' },
+  { label: 'Profile', path: '/me' },
+  { label: 'Users', path: '/admin/users' },
+  { label: 'Roles', path: '/admin/roles' },
+  { label: 'Permissions', path: '/admin/permissions' }
+];
+
+function routeActive(path) {
+  return route.path === path;
+}
 
 async function doLogout() {
   auth.logout();

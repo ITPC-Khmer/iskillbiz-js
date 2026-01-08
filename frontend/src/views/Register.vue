@@ -3,7 +3,7 @@
     <div class="card shadow-sm">
       <div class="card-body">
         <h3 class="card-title mb-3">Register</h3>
-        <form @submit.prevent="submit">
+        <form @submit.prevent="submit" novalidate>
           <div class="row g-3">
             <div class="col-md-6">
               <label class="form-label">Phone</label>
@@ -22,7 +22,10 @@
               <input v-model="form.email" type="email" class="form-control" />
             </div>
           </div>
-          <button class="btn btn-primary w-100 mt-3" :disabled="loading">{{ loading ? 'Loading...' : 'Register' }}</button>
+          <button class="btn btn-primary w-100 mt-3" :disabled="loading">{{ loading ? 'Creating…' : 'Create account' }}</button>
+          <div class="text-center mt-3">
+            <RouterLink to="/login">Have an account? Login</RouterLink>
+          </div>
           <div v-if="error" class="alert alert-danger mt-3">{{ error }}</div>
         </form>
       </div>
@@ -34,6 +37,7 @@
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
+import { RouterLink } from 'vue-router';
 
 const auth = useAuthStore();
 const router = useRouter();

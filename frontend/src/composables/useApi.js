@@ -1,4 +1,10 @@
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000';
+export const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000';
+
+function buildUrl(path) {
+  if (!path) return API_BASE;
+  if (path.startsWith('http')) return path;
+  return `${API_BASE}${path.startsWith('/') ? path : '/' + path}`;
+}
 
 async function request(method, path, { token, body, formData } = {}) {
   const headers = {};
@@ -11,15 +17,28 @@ async function request(method, path, { token, body, formData } = {}) {
   }
   if (token) headers.Authorization = `Bearer ${token}`;
 
-  const res = await fetch(`${API_BASE}${path}`, { method, headers, body: payload });
-  const data = await res.json();
+  let res;
+  try {
+    res = await fetch(buildUrl(path), { method, headers, body: payload, credentials: 'include' });
+  } catch (err) {
+    throw new Error('Network error. Please check your connection.');
+  }
+  let data;
+  const text = await res.text();
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch {
+    data = { success: res.ok, message: text || 'Unexpected response' };
+  }
   if (!res.ok || data.success === false) {
-    throw new Error(data.message || 'Request failed');
+    const msg = data.message || `Request failed (${res.status})`;
+    throw new Error(msg);
   }
   return data;
 }
 
 export const api = {
+  buildUrl,
   get: (path, opts) => request('GET', path, opts),
   post: (path, bodyOrOpts, maybeOpts) => {
     if (bodyOrOpts instanceof FormData) return request('POST', path, { ...maybeOpts, formData: bodyOrOpts });
@@ -29,4 +48,3 @@ export const api = {
   put: (path, bodyOrOpts, maybeOpts) => request('PUT', path, { ...(maybeOpts || {}), body: bodyOrOpts }),
   del: (path, opts) => request('DELETE', path, opts)
 };
-

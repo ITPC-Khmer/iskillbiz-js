@@ -6,23 +6,23 @@
         <button class="btn btn-outline-secondary btn-sm" @click="load" :disabled="loading">Refresh</button>
       </div>
       <div v-if="error" class="alert alert-danger">{{ error }}</div>
-      <div v-if="user" class="row g-3">
+      <div v-if="hasUser" class="row g-3">
         <div class="col-md-6">
-          <p class="mb-1"><strong>Phone:</strong> {{ user.phone }}</p>
-          <p class="mb-1"><strong>Name:</strong> {{ user.name }}</p>
-          <p class="mb-1"><strong>Email:</strong> {{ user.email }}</p>
+          <p class="mb-1"><strong>Phone:</strong> {{ user.value.phone }}</p>
+          <p class="mb-1"><strong>Name:</strong> {{ user.value.name }}</p>
+          <p class="mb-1"><strong>Email:</strong> {{ user.value.email }}</p>
           <p class="mb-1"><strong>Roles:</strong>
-            <span v-for="r in user.roles" :key="r" class="badge bg-secondary me-1">{{ r }}</span>
+            <span v-for="r in user.value.roles" :key="r" class="badge bg-secondary me-1">{{ r }}</span>
           </p>
           <p class="mb-1"><strong>Permissions:</strong>
-            <span v-for="p in user.permissions" :key="p" class="badge bg-light text-dark border me-1">{{ p }}</span>
+            <span v-for="p in user.value.permissions" :key="p" class="badge bg-light text-dark border me-1">{{ p }}</span>
           </p>
         </div>
         <div class="col-md-6">
-          <div v-if="user.photo" class="mb-3">
-            <img :src="user.photo" alt="avatar" class="img-fluid rounded" style="max-height: 180px;" />
+          <div v-if="photoUrl" class="mb-3">
+            <img :src="photoUrl" alt="avatar" class="img-fluid rounded" style="max-height: 180px;" />
           </div>
-          <form @submit.prevent="upload" class="border rounded p-3 bg-light">
+          <form v-if="hasUser" @submit.prevent="upload" class="border rounded p-3 bg-light">
             <label class="form-label">Upload photo</label>
             <input type="file" class="form-control" @change="onFile" accept="image/*" />
             <button class="btn btn-primary w-100 mt-2" type="submit" :disabled="!file || uploading">{{ uploading ? 'Uploading...' : 'Upload' }}</button>
@@ -36,17 +36,25 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { API_BASE } from '../composables/useApi';
+import { onMounted, ref, computed } from 'vue';
 import { useAuthStore } from '../stores/auth';
 import { api } from '../composables/useApi';
 
 const auth = useAuthStore();
 const user = auth.user;
+const hasUser = computed(() => !!user.value);
 const loading = ref(false);
 const uploading = ref(false);
 const file = ref(null);
 const msg = ref('');
 const error = ref('');
+
+const photoUrl = computed(() => {
+  if (!user.value?.photo) return '';
+  if (user.value.photo.startsWith('http')) return user.value.photo;
+  return API_BASE.replace(/\/$/, '') + user.value.photo;
+});
 
 async function load() {
   loading.value = true;
@@ -66,6 +74,10 @@ function onFile(e) {
 
 async function upload() {
   if (!file.value) return;
+  if (!user.value || !user.value.id) {
+    error.value = 'User not loaded yet. Please refresh and try again.';
+    return;
+  }
   uploading.value = true;
   msg.value = '';
   error.value = '';
@@ -84,4 +96,3 @@ async function upload() {
 
 onMounted(load);
 </script>
-
