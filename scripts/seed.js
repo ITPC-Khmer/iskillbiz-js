@@ -1,5 +1,6 @@
 require('dotenv').config();
 const bcrypt = require('bcryptjs');
+const { Op } = require('sequelize');
 const {
   sequelize,
   User,
@@ -137,22 +138,37 @@ async function seed() {
     const seededUsers = [];
     for (const userData of defaultUsers) {
       const passwordHash = await bcrypt.hash(userData.password, 10);
-      const [user] = await User.findOrCreate({
-         where: { phone: userData.phone },
-         defaults: {
-           phone: userData.phone,
-           email: userData.email || null,
-           username: userData.username || null,
-           passwordHash,
-           name: userData.name
-         },
-         transaction: tx
-       });
+      const matchers = [];
+      if (userData.phone) matchers.push({ phone: userData.phone });
+      if (userData.email) matchers.push({ email: userData.email });
+      if (userData.username) matchers.push({ username: userData.username });
+
+      let user = matchers.length
+        ? await User.findOne({ where: { [Op.or]: matchers }, transaction: tx })
+        : null;
+
+      if (!user) {
+        user = await User.create({
+          phone: userData.phone,
+          email: userData.email || null,
+          username: userData.username || null,
+          passwordHash,
+          name: userData.name
+        }, { transaction: tx });
+      } else {
+        if (userData.phone && user.phone !== userData.phone) user.phone = userData.phone;
+        if (userData.email && user.email !== userData.email) user.email = userData.email;
+        if (userData.username && user.username !== userData.username) user.username = userData.username;
+        user.passwordHash = passwordHash;
+        user.name = userData.name;
+        await user.save({ transaction: tx });
+      }
       if (!user.passwordHash || userData.password) {
         // Ensure password is set in case existing user had placeholder
         user.passwordHash = passwordHash;
         await user.save({ transaction: tx });
       }
+
       const assignedRoles = userData.roles.map((r) => roles[r]).filter(Boolean);
       if (assignedRoles.length) {
         await user.setRoles(assignedRoles, { transaction: tx });
