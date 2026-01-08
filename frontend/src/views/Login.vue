@@ -7,34 +7,47 @@
         <p class="login-subtitle">Sign in to continue to iSkillBiz</p>
       </div>
 
-      <form @submit.prevent="submit" class="login-form">
+      <form @submit.prevent="submit" class="login-form" novalidate>
+        <div v-if="error" class="error-alert mb-3">
+          <span class="alert-icon">⚠️</span>
+          <span>{{ error }}</span>
+        </div>
+
         <div class="form-group">
-          <label class="form-label">
+          <label class="form-label" for="identifier">
             <span class="label-icon">🪪</span>
             Phone, Email, or Username
           </label>
           <input
+            id="identifier"
             v-model.trim="form.identifier"
             class="form-input"
             type="text"
-            required
+            :class="{ invalid: fieldErrors.identifier }"
             placeholder="+10000000001 or user@example.com or username"
             autocomplete="username"
+            autofocus
           />
-          <small class="form-hint">Use your phone number, email address, or username</small>
+          <small class="form-hint"
+            >Use your phone number, email address, or username</small
+          >
+          <div v-if="fieldErrors.identifier" class="field-error">
+            {{ fieldErrors.identifier }}
+          </div>
         </div>
 
         <div class="form-group">
-          <label class="form-label">
+          <label class="form-label" for="password">
             <span class="label-icon">🔒</span>
             Password
           </label>
           <div class="password-input-wrapper">
             <input
+              id="password"
               v-model="form.password"
               :type="showPassword ? 'text' : 'password'"
               class="form-input"
-              required
+              :class="{ invalid: fieldErrors.password }"
               autocomplete="current-password"
               placeholder="Enter your password"
             />
@@ -42,62 +55,81 @@
               type="button"
               class="password-toggle"
               @click="showPassword = !showPassword"
+              :aria-pressed="showPassword"
               :title="showPassword ? 'Hide password' : 'Show password'"
             >
-              {{ showPassword ? '👁️' : '👁️‍🗨️' }}
+              {{ showPassword ? "👁️" : "👁️‍🗨️" }}
             </button>
+          </div>
+          <div v-if="fieldErrors.password" class="field-error">
+            {{ fieldErrors.password }}
           </div>
         </div>
 
-        <button
-          type="submit"
-          class="submit-btn"
-          :disabled="loading"
-        >
+        <div class="form-row remember-row">
+          <label class="remember">
+            <input type="checkbox" v-model="form.remember" /> Remember me
+          </label>
+          <RouterLink to="/forgot" class="forgot-link"
+            >Forgot password?</RouterLink
+          >
+        </div>
+
+        <button type="submit" class="submit-btn" :disabled="loading">
           <span v-if="loading" class="btn-spinner"></span>
           <span v-else class="btn-icon">🚀</span>
-          <span>{{ loading ? 'Signing in...' : 'Sign In' }}</span>
+          <span>{{ loading ? "Signing in..." : "Sign In" }}</span>
         </button>
 
-        <div v-if="error" class="error-alert">
-          <span class="alert-icon">⚠️</span>
-          <span>{{ error }}</span>
+        <div class="login-footer">
+          <div class="divider"><span>OR</span></div>
+          <p class="footer-text">
+            Don't have an account?
+            <RouterLink to="/register" class="footer-link"
+              >Create one</RouterLink
+            >
+          </p>
         </div>
       </form>
-
-      <div class="login-footer">
-        <div class="divider">
-          <span>OR</span>
-        </div>
-        <p class="footer-text">
-          Don't have an account?
-          <RouterLink to="/register" class="footer-link">Create one</RouterLink>
-        </p>
-      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue';
-import { useRouter, RouterLink } from 'vue-router';
-import { useAuthStore } from '../stores/auth';
+import { reactive, ref } from "vue";
+import { useRouter, RouterLink } from "vue-router";
+import { useAuthStore } from "../stores/auth";
 
 const auth = useAuthStore();
 const router = useRouter();
 const loading = ref(false);
-const error = ref('');
+const error = ref("");
 const showPassword = ref(false);
-const form = reactive({ identifier: '', password: '' });
+const fieldErrors = ref({ identifier: "", password: "" });
+const form = reactive({ identifier: "", password: "", remember: false });
 
 async function submit() {
   loading.value = true;
-  error.value = '';
+  error.value = "";
+  // Basic client-side validation
+  fieldErrors.value = { identifier: "", password: "" };
+  if (!form.identifier)
+    fieldErrors.value.identifier =
+      "Please enter your phone, email, or username.";
+  if (!form.password)
+    fieldErrors.value.password = "Please enter your password.";
+  if (fieldErrors.value.identifier || fieldErrors.value.password) {
+    error.value = "Please fix the problems above.";
+    loading.value = false;
+    return;
+  }
+
   try {
     await auth.login(form);
-    router.push('/');
+    router.push("/");
   } catch (err) {
-    error.value = err.message || 'Failed to sign in. Please check your credentials.';
+    error.value =
+      err?.message || "Failed to sign in. Please check your credentials.";
   } finally {
     loading.value = false;
   }
@@ -106,33 +138,33 @@ async function submit() {
 
 <style scoped>
 .login-container {
-  max-width: 480px;
-  margin: 0 auto;
-  padding: 2rem 1rem;
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  box-sizing: border-box;
+  background: transparent;
+  overflow: hidden; /* prevent page scrolling while on login */
 }
 
 .login-card {
   background: white;
   border-radius: 24px;
-  padding: 3rem 2.5rem;
+  padding: 2.25rem 1.75rem;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-}
-
-.login-header {
-  text-align: center;
-  margin-bottom: 2.5rem;
-}
-
-.welcome-icon {
-  font-size: 3.5rem;
-  margin-bottom: 1rem;
-  animation: wave 2s ease-in-out infinite;
+  width: 100%;
+  max-width: 480px;
+  box-sizing: border-box;
+  overflow: visible; /* no internal scrolling */
 }
 
 @keyframes wave {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(20deg); }
-  75% { transform: rotate(-20deg); }
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
 }
 
 .login-title {
@@ -265,7 +297,9 @@ async function submit() {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .error-alert {
@@ -300,7 +334,7 @@ async function submit() {
 
 .divider::before,
 .divider::after {
-  content: '';
+  content: "";
   flex: 1;
   border-bottom: 1px solid #e2e8f0;
 }
@@ -329,9 +363,40 @@ async function submit() {
   text-decoration: underline;
 }
 
+.field-error {
+  color: #dc2626;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+.form-input.invalid {
+  border-color: #ef4444;
+}
+
+.remember-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.remember input {
+  margin-right: 0.5rem;
+}
+
+.forgot-link {
+  font-size: 0.9rem;
+  color: #667eea;
+  text-decoration: none;
+}
+
+.forgot-link:hover {
+  text-decoration: underline;
+}
+
 @media (max-width: 480px) {
   .login-card {
-    padding: 2rem 1.5rem;
+    padding: 1.5rem 1rem;
   }
 
   .login-title {

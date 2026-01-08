@@ -3,13 +3,13 @@
   <Transition name="fade">
     <div v-if="layout === 'auth'" class="auth-layout">
       <div class="auth-card">
-        <div class="auth-header">
+        <!-- <div class="auth-header">
           <div class="brand-logo">
             <span class="logo-icon">🎯</span>
             <span class="logo-text">iSkillBiz</span>
           </div>
           <p class="auth-subtitle">Access your account</p>
-        </div>
+        </div> -->
         <RouterView v-slot="{ Component, route }">
           <Transition name="slide-fade" mode="out-in">
             <component :is="Component" :key="route.path" />
@@ -127,7 +127,6 @@ const sidebarCollapsed = ref(false);
 const forceReloadKey = ref(0);
 
 const layout = computed(() => route.meta.layout || "app");
-
 
 const pageInfo = {
   "/": {
@@ -247,16 +246,16 @@ watch(sidebarCollapsed, (newValue) => {
   }
 }
 
-.auth-card {
+/* .auth-card {
   background: white;
   border-radius: 20px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   padding: 3rem 2.5rem;
-  max-width: 480px;
+  max-width: 600px;
   width: 100%;
   position: relative;
   z-index: 1;
-}
+} */
 
 .auth-header {
   text-align: center;

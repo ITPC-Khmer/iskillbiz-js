@@ -4,33 +4,46 @@
       <div class="register-header">
         <div class="welcome-icon">🎯</div>
         <h2 class="register-title">Create Account</h2>
-        <p class="register-subtitle">Join iSkillBiz and start managing your workspace</p>
+        <p class="register-subtitle">
+          Join iSkillBiz and start managing your workspace
+        </p>
       </div>
 
-      <form @submit.prevent="submit" class="register-form">
+      <form @submit.prevent="submit" class="register-form" novalidate>
+        <div v-if="error" class="error-alert mb-3">
+          <span class="alert-icon">⚠️</span>
+          <span>{{ error }}</span>
+        </div>
+
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label">
+            <label class="form-label" for="phone">
               <span class="label-icon">📱</span>
               Phone Number
             </label>
             <input
+              id="phone"
               v-model.trim="form.phone"
               class="form-input"
               type="tel"
               placeholder="+10000000001"
               autocomplete="tel"
+              autofocus
             />
+            <div v-if="fieldErrors.phone" class="field-error">
+              {{ fieldErrors.phone }}
+            </div>
           </div>
 
           <div class="form-group">
-            <label class="form-label">
+            <label class="form-label" for="password">
               <span class="label-icon">🔒</span>
               Password
               <span class="required">*</span>
             </label>
             <div class="password-input-wrapper">
               <input
+                id="password"
                 v-model="form.password"
                 :type="showPassword ? 'text' : 'password'"
                 class="form-input"
@@ -44,33 +57,41 @@
                 @click="showPassword = !showPassword"
                 :title="showPassword ? 'Hide password' : 'Show password'"
               >
-                {{ showPassword ? '👁️' : '👁️‍🗨️' }}
+                {{ showPassword ? "👁️" : "👁️‍🗨️" }}
               </button>
+            </div>
+            <div v-if="fieldErrors.password" class="field-error">
+              {{ fieldErrors.password }}
             </div>
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label">
+            <label class="form-label" for="username">
               <span class="label-icon">🏷️</span>
               Username
             </label>
             <input
+              id="username"
               v-model.trim="form.username"
               class="form-input"
               type="text"
               placeholder="username"
               autocomplete="username"
             />
+            <div v-if="fieldErrors.username" class="field-error">
+              {{ fieldErrors.username }}
+            </div>
           </div>
 
           <div class="form-group">
-            <label class="form-label">
+            <label class="form-label" for="name">
               <span class="label-icon">👤</span>
               Full Name
             </label>
             <input
+              id="name"
               v-model.trim="form.name"
               class="form-input"
               type="text"
@@ -80,34 +101,29 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">
+            <label class="form-label" for="email">
               <span class="label-icon">✉️</span>
               Email
             </label>
             <input
+              id="email"
               v-model.trim="form.email"
               class="form-input"
               type="email"
               placeholder="john@example.com"
               autocomplete="email"
             />
+            <div v-if="fieldErrors.email" class="field-error">
+              {{ fieldErrors.email }}
+            </div>
           </div>
         </div>
 
-        <button
-          type="submit"
-          class="submit-btn"
-          :disabled="loading"
-        >
+        <button type="submit" class="submit-btn" :disabled="loading">
           <span v-if="loading" class="btn-spinner"></span>
           <span v-else class="btn-icon">✨</span>
-          <span>{{ loading ? 'Creating account...' : 'Create Account' }}</span>
+          <span>{{ loading ? "Creating account..." : "Create Account" }}</span>
         </button>
-
-        <div v-if="error" class="error-alert">
-          <span class="alert-icon">⚠️</span>
-          <span>{{ error }}</span>
-        </div>
       </form>
 
       <div class="register-footer">
@@ -124,28 +140,57 @@
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue';
-import { useRouter, RouterLink } from 'vue-router';
-import { useAuthStore } from '../stores/auth';
+import { reactive, ref } from "vue";
+import { useRouter, RouterLink } from "vue-router";
+import { useAuthStore } from "../stores/auth";
 
 const auth = useAuthStore();
 const router = useRouter();
 const loading = ref(false);
-const error = ref('');
+const error = ref("");
 const showPassword = ref(false);
-const form = reactive({ phone: '', email: '', username: '', password: '', name: '' });
+const fieldErrors = ref({ phone: "", email: "", username: "", password: "" });
+const form = reactive({
+  phone: "",
+  email: "",
+  username: "",
+  password: "",
+  name: "",
+});
 
 async function submit() {
   loading.value = true;
-  error.value = '';
+  error.value = "";
+  fieldErrors.value = { phone: "", email: "", username: "", password: "" };
+
+  // Basic client-side validation
+  if (!form.phone && !form.email && !form.username) {
+    const msg = "Please provide at least one of phone, email, or username.";
+    fieldErrors.value.phone = msg;
+    fieldErrors.value.email = msg;
+    fieldErrors.value.username = msg;
+  }
+
+  if (!form.password || form.password.length < 6) {
+    fieldErrors.value.password = "Password must be at least 6 characters.";
+  }
+
+  if (
+    fieldErrors.value.phone ||
+    fieldErrors.value.email ||
+    fieldErrors.value.username ||
+    fieldErrors.value.password
+  ) {
+    error.value = "Please fix the problems above.";
+    loading.value = false;
+    return;
+  }
+
   try {
-    if (!form.phone && !form.email && !form.username) {
-      throw new Error('Please provide at least one of phone, email, or username.');
-    }
     await auth.register(form);
-    router.push('/');
+    router.push("/");
   } catch (err) {
-    error.value = err.message || 'Failed to create account. Please try again.';
+    error.value = err.message || "Failed to create account. Please try again.";
   } finally {
     loading.value = false;
   }
@@ -154,16 +199,24 @@ async function submit() {
 
 <style scoped>
 .register-container {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 2rem 1rem;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  box-sizing: border-box;
+  background: transparent;
 }
 
 .register-card {
   background: white;
   border-radius: 24px;
-  padding: 3rem 2.5rem;
+  padding: 2.25rem 1.75rem;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 600px;
+  box-sizing: border-box;
+  overflow: visible;
 }
 
 .register-header {
@@ -172,14 +225,19 @@ async function submit() {
 }
 
 .welcome-icon {
-  font-size: 3.5rem;
+  font-size: 3rem;
   margin-bottom: 1rem;
   animation: bounce 2s ease-in-out infinite;
 }
 
 @keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .register-title {
@@ -203,8 +261,14 @@ async function submit() {
 
 .form-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(2, minmax(200px, 1fr));
+  gap: 1rem 1.25rem;
+}
+
+/* If a row has a third field (e.g. username, name, email), make the 3rd item span full width
+   so the layout becomes two columns on the first row and the last field on its own row. */
+.form-row > .form-group:nth-child(3) {
+  grid-column: 1 / -1;
 }
 
 .form-group {
@@ -317,7 +381,9 @@ async function submit() {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .error-alert {
@@ -352,7 +418,7 @@ async function submit() {
 
 .divider::before,
 .divider::after {
-  content: '';
+  content: "";
   flex: 1;
   border-bottom: 1px solid #e2e8f0;
 }
