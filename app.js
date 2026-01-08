@@ -33,7 +33,7 @@ app.use(cookieParser());
 app.use(cors({ origin: allowedOrigins, credentials: true }));
 // Prevent caching of API responses
 app.use((req, res, next) => {
-  if (req.path.startsWith('/auth') || req.path.startsWith('/users') || req.path.startsWith('/roles') || req.path.startsWith('/permissions')) {
+  if (req.path.startsWith('/api/')) {
     res.set('Cache-Control', 'no-store');
   }
   next();
@@ -51,12 +51,12 @@ app.use(session({
 }));
 // Sass is precompiled via npm scripts (see package.json)
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-app.use('/auth', authRouter);
-app.use('/roles', rolesRouter);
-app.use('/permissions', permissionsRouter);
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use(['/uploads', '/api/uploads'], express.static(path.join(__dirname, 'uploads')));
+app.use('/api/auth', authRouter);
+app.use('/api/roles', rolesRouter);
+app.use('/api/permissions', permissionsRouter);
+app.use('/api', indexRouter);
+app.use('/api/users', usersRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
