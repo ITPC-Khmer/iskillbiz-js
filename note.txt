@@ -19,7 +19,7 @@ pm2 save
 
 cd /var/www/iskillbiz-js
 git reset --hard
-git pull origin master
+git pull
 npm install --production
 pm2 restart ecosystem.config.js
 pm2 save

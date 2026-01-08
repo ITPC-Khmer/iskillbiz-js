@@ -11,6 +11,9 @@ const authRouter = require('./routes/auth');
 const responseHelpers = require('./middleware/response');
 const rolesRouter = require('./routes/roles');
 const permissionsRouter = require('./routes/permissions');
+const facebookRouter = require('./routes/facebook');
+const facebookAutomationsRouter = require('./routes/facebookAutomations');
+const facebookWebhookRouter = require('./routes/facebookWebhook');
 const cors = require('cors');
 const allowedOrigins = (process.env.CLIENT_ORIGINS || 'http://localhost:5173').split(',').map((o) => o.trim()).filter(Boolean);
 
@@ -55,6 +58,9 @@ app.use(['/uploads', '/api/uploads'], express.static(path.join(__dirname, 'uploa
 app.use('/api/auth', authRouter);
 app.use('/api/roles', rolesRouter);
 app.use('/api/permissions', permissionsRouter);
+app.use('/api/facebook', facebookRouter);
+app.use('/api/facebook', facebookAutomationsRouter);
+app.use('/api/facebook', facebookWebhookRouter);
 app.use('/api', indexRouter);
 app.use('/api/users', usersRouter);
 
