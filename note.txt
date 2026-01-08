@@ -27,7 +27,7 @@ pm2 save
 cd /var/www/iskillbiz-js/frontend
 npm install
 npm run build
-cd ../backend
+cd ..
 pm2 restart ecosystem.config.js
 pm2 save
 
