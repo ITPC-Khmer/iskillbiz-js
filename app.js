@@ -40,6 +40,7 @@ app.use(session({
 }));
 // Sass is precompiled via npm scripts (see package.json)
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/auth', authRouter);
 app.use('/roles', rolesRouter);
 app.use('/permissions', permissionsRouter);

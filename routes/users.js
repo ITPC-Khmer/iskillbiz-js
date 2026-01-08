@@ -6,10 +6,20 @@ const {
   updateUser,
   deleteUser,
   listUsers,
-  getUser
+  getUser,
+  setUserPhoto
 } = require('../services/userService');
+const { uploadUserPhoto } = require('../middleware/upload');
 
 const mustBeAdmin = [requireAuth, requireRoles(['admin', 'super_admin'])];
+
+function isSelfOrAdmin(req, res, next) {
+  const isSelf = req.user && req.user.id === req.params.id;
+  const roles = (req.user && req.user.roles) || [];
+  const isAdmin = roles.includes('admin') || roles.includes('super_admin');
+  if (isSelf || isAdmin) return next();
+  return res.error('Forbidden', 403);
+}
 
 router.get('/', mustBeAdmin, async (req, res, next) => {
   try {
@@ -59,6 +69,20 @@ router.delete('/:id', mustBeAdmin, async (req, res, next) => {
     if (err.status) return res.error(err.message, err.status);
     next(err);
   }
+});
+
+router.post('/:id/photo', requireAuth, isSelfOrAdmin, (req, res, next) => {
+  uploadUserPhoto(req, res, async (err) => {
+    if (err) return res.error(err.message || 'Upload failed', 400);
+    try {
+      const relativePath = req.file.path.replace(process.cwd() + '/', '').replace(/\\/g, '/');
+      const user = await setUserPhoto(req.params.id, '/' + relativePath);
+      res.success({ user, photo: user.photo }, 'photo updated');
+    } catch (error) {
+      if (error.status) return res.error(error.message, error.status);
+      next(error);
+    }
+  });
 });
 
 module.exports = router;

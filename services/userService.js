@@ -76,11 +76,20 @@ async function getUser(id) {
   return sanitizeUser(user);
 }
 
+async function setUserPhoto(id, photoPath) {
+  const user = await User.findByPk(id, { include: [{ model: Role, include: [Permission] }] });
+  if (!user) throw httpError(404, 'User not found');
+  user.photo = photoPath;
+  await user.save();
+  await user.reload({ include: [{ model: Role, include: [Permission] }] });
+  return sanitizeUser(user);
+}
+
 module.exports = {
   createUser,
   updateUser,
   deleteUser,
   listUsers,
-  getUser
+  getUser,
+  setUserPhoto
 };
-
