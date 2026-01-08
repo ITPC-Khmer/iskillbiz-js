@@ -136,10 +136,31 @@
             <button class="btn link" @click="loadAccounts" :disabled="fb.loading">Refresh</button>
           </div>
         </div>
-        <div class="card-body form-row">
-          <input v-model="accessTokenInput" type="text" placeholder="Enter Facebook access token" />
-          <button class="btn" @click="connectAccount" :disabled="fb.loading">Connect</button>
+        <div class="connect-options">
+          <!-- OAuth Method (Recommended) -->
+          <div class="connect-method">
+            <h4>🔐 OAuth Login (Recommended)</h4>
+            <p class="method-desc">Securely connect your Facebook account via OAuth popup</p>
+            <button class="btn primary" @click="connectWithOAuth" :disabled="fbOAuth.loading">
+              {{ fbOAuth.loading ? 'Connecting...' : 'Connect with Facebook' }}
+            </button>
+          </div>
+
+          <div class="divider">
+            <span>OR</span>
+          </div>
+
+          <!-- Manual Token Method -->
+          <div class="connect-method">
+            <h4>🔑 Manual Token (Testing)</h4>
+            <p class="method-desc">Paste a Facebook Page Access Token</p>
+            <div class="card-body form-row">
+              <input v-model="accessTokenInput" type="text" placeholder="Enter Facebook access token" />
+              <button class="btn" @click="connectAccount" :disabled="fb.loading">Connect</button>
+            </div>
+          </div>
         </div>
+
         <div v-if="accounts.length" class="list accounts">
           <div class="list-item" v-for="acc in accounts" :key="acc.id">
             <div>
@@ -241,10 +262,15 @@ import { ref, onMounted } from 'vue';
 import { useFacebook } from '../composables/useFacebook';
 import { useNotifications } from '../composables/useNotifications';
 import { useFacebookAutomations } from '../composables/useFacebookAutomations';
+import { useFacebookOAuth } from '../composables/useFacebookOAuth';
+import { useRoute, useRouter } from 'vue-router';
 
 const fb = useFacebook();
 const fbAuto = useFacebookAutomations();
+const fbOAuth = useFacebookOAuth();
 const { handleApiError, addInfo } = useNotifications();
+const route = useRoute();
+const router = useRouter();
 
 const pages = ref([]);
 const selectedPageId = ref(null);
@@ -497,9 +523,35 @@ async function loadAccounts() {
   }
 }
 
-onMounted(() => {
-  loadAccounts();
-  loadPages();
+async function connectWithOAuth() {
+  try {
+    // Redirect to Facebook OAuth (full page redirect)
+    await fbOAuth.redirectToOAuth();
+  } catch (err) {
+    handleApiError(err, 'Connect Facebook OAuth');
+  }
+}
+
+// Check for OAuth callback on mount
+onMounted(async () => {
+  // Check URL params for OAuth success/error
+  const urlParams = new URLSearchParams(window.location.search);
+
+  if (urlParams.get('success') === 'true') {
+    addInfo('Facebook account connected successfully!');
+    // Clean URL params
+    router.replace({ query: {} });
+    await loadAccounts();
+    await loadPages();
+  } else if (urlParams.get('error')) {
+    handleApiError(new Error(urlParams.get('error')), 'Facebook OAuth');
+    // Clean URL params
+    router.replace({ query: {} });
+  } else {
+    // Normal load
+    loadAccounts();
+    loadPages();
+  }
 });
 </script>
 
@@ -723,6 +775,72 @@ onMounted(() => {
   padding: 0.6rem;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
+}
+
+.connect-options {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.connect-method {
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #f9fafb;
+}
+
+.connect-method h4 {
+  margin: 0 0 0.5rem 0;
+  color: #1e293b;
+  font-size: 1rem;
+}
+
+.method-desc {
+  margin: 0 0 1rem 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.btn.primary {
+  background: #1877f2;
+  color: white;
+  width: 100%;
+  font-size: 1rem;
+  padding: 0.75rem 1.5rem;
+}
+
+.btn.primary:hover {
+  background: #166fe5;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 0.5rem 0;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.divider:not(:empty)::before {
+  margin-right: 0.75rem;
+}
+
+.divider:not(:empty)::after {
+  margin-left: 0.75rem;
+}
+
+.divider span {
+  color: #94a3b8;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 .automations {

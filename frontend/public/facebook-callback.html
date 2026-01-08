@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Facebook OAuth Callback</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      max-width: 400px;
+    }
+    .spinner {
+      width: 40px;
+      height: 40px;
+      margin: 0 auto 1rem;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .success {
+      color: #10b981;
+      font-size: 48px;
+      margin-bottom: 1rem;
+    }
+    .error {
+      color: #ef4444;
+      font-size: 48px;
+      margin-bottom: 1rem;
+    }
+    h1 {
+      font-size: 1.5rem;
+      margin: 0 0 0.5rem;
+      color: #1e293b;
+    }
+    p {
+      color: #64748b;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="spinner" id="spinner"></div>
+    <div id="success-icon" class="success" style="display: none;">✓</div>
+    <div id="error-icon" class="error" style="display: none;">✕</div>
+    <h1 id="title">Connecting to Facebook...</h1>
+    <p id="message">Please wait while we complete the connection.</p>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const state = urlParams.get('state');
+    const error = urlParams.get('error');
+    const errorDescription = urlParams.get('error_description');
+
+    const spinner = document.getElementById('spinner');
+    const successIcon = document.getElementById('success-icon');
+    const errorIcon = document.getElementById('error-icon');
+    const title = document.getElementById('title');
+    const message = document.getElementById('message');
+
+    function showSuccess() {
+      spinner.style.display = 'none';
+      successIcon.style.display = 'block';
+      title.textContent = 'Connected Successfully!';
+      message.textContent = 'You can close this window now.';
+    }
+
+    function showError(msg) {
+      spinner.style.display = 'none';
+      errorIcon.style.display = 'block';
+      title.textContent = 'Connection Failed';
+      message.textContent = msg || 'An error occurred during the connection.';
+    }
+
+    // Handle OAuth response
+    if (error) {
+      // OAuth error
+      showError(errorDescription || error);
+
+      // Send error to parent window
+      if (window.opener) {
+        window.opener.postMessage({
+          type: 'facebook-oauth-error',
+          error: errorDescription || error
+        }, '*');
+      }
+
+      setTimeout(() => window.close(), 3000);
+    } else if (code && state) {
+      // Success - send to parent window
+      showSuccess();
+
+      if (window.opener) {
+        window.opener.postMessage({
+          type: 'facebook-oauth-success',
+          code,
+          state
+        }, '*');
+      }
+
+      setTimeout(() => window.close(), 2000);
+    } else {
+      // Invalid callback
+      showError('Invalid OAuth response. Missing code or state.');
+      setTimeout(() => window.close(), 3000);
+    }
+  </script>
+</body>
+</html>
+
