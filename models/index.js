@@ -66,7 +66,7 @@ FacebookPage.hasMany(FacebookAutomation, { foreignKey: 'facebook_page_id', as: '
 FacebookAutomation.belongsTo(FacebookPage, { foreignKey: 'facebook_page_id' });
 
 // FacebookAutomation -> FacebookKeyword
-FacebookAutomation.hasMany(FacebookKeyword, { foreignKey: 'facebook_automation_id', as: 'keywords' });
+FacebookAutomation.hasMany(FacebookKeyword, { foreignKey: 'facebook_automation_id', as: 'keywords', onDelete: 'CASCADE' });
 FacebookKeyword.belongsTo(FacebookAutomation, { foreignKey: 'facebook_automation_id' });
 
 // FacebookPage -> FacebookContact
@@ -74,7 +74,7 @@ FacebookPage.hasMany(FacebookContact, { foreignKey: 'facebook_page_id', as: 'con
 FacebookContact.belongsTo(FacebookPage, { foreignKey: 'facebook_page_id' });
 
 // FacebookAutomation -> FacebookInstantReply
-FacebookAutomation.hasMany(FacebookInstantReply, { foreignKey: 'facebook_automation_id', as: 'instantReplies' });
+FacebookAutomation.hasMany(FacebookInstantReply, { foreignKey: 'facebook_automation_id', as: 'instantReplies', onDelete: 'CASCADE' });
 FacebookInstantReply.belongsTo(FacebookAutomation, { foreignKey: 'facebook_automation_id' });
 
 // FacebookPage -> FacebookFAQ
