@@ -2,8 +2,8 @@
   <div class="login-container">
     <div class="login-card">
       <div class="login-header">
-        <div class="welcome-icon">👋</div>
-        <h2 class="login-title">Welcome Back</h2>
+        <div class="welcome-icon">🎯</div>
+        <h2 class="login-title">iSkillBiz</h2>
         <p class="login-subtitle">Sign in to continue to iSkillBiz</p>
       </div>
 
