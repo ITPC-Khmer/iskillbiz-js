@@ -18,14 +18,21 @@ async function ensureRoles(roleNames = []) {
 }
 
 async function createUser(data = {}) {
-  const { phone, password, email, name, photo, gender, dob, bio, roles = [] } = data;
-  if (!phone || !password) throw httpError(400, 'phone and password are required');
+  const { phone, email, username, password, name, photo, gender, dob, bio, roles = [] } = data;
+  if (!password) throw httpError(400, 'password is required');
+  if (!phone && !email && !username) throw httpError(400, 'phone, email, or username is required');
 
-  const exists = await User.findOne({ where: { phone } });
-  if (exists) throw httpError(409, 'Phone already registered');
+  const matchers = [];
+  if (phone) matchers.push({ phone });
+  if (email) matchers.push({ email });
+  if (username) matchers.push({ username });
+  if (matchers.length) {
+    const exists = await User.findOne({ where: { [Op.or]: matchers } });
+    if (exists) throw httpError(409, 'User with provided phone/email/username already exists');
+  }
 
   const passwordHash = await hashPassword(password);
-  const user = await User.create({ phone, passwordHash, email, name, photo, gender, dob: dob || null, bio });
+  const user = await User.create({ phone: phone || null, email: email || null, username: username || null, passwordHash, name, photo, gender, dob: dob || null, bio });
 
   const roleModels = await ensureRoles(roles);
   if (roleModels.length) await user.setRoles(roleModels);
@@ -38,9 +45,20 @@ async function updateUser(id, data = {}) {
   const user = await User.findByPk(id, { include: [{ model: Role, include: [Permission] }] });
   if (!user) throw httpError(404, 'User not found');
 
-  const { phone, password, email, name, photo, gender, dob, bio, roles } = data;
-  if (phone) user.phone = phone;
+  const { phone, email, username, password, name, photo, gender, dob, bio, roles } = data;
+
+  const matchers = [];
+  if (phone) matchers.push({ phone });
+  if (email) matchers.push({ email });
+  if (username) matchers.push({ username });
+  if (matchers.length) {
+    const conflict = await User.findOne({ where: { [Op.and]: [{ id: { [Op.ne]: id } }, { [Op.or]: matchers }] } });
+    if (conflict) throw httpError(409, 'User with provided phone/email/username already exists');
+  }
+
+  if (phone !== undefined) user.phone = phone;
   if (email !== undefined) user.email = email;
+  if (username !== undefined) user.username = username;
   if (name !== undefined) user.name = name;
   if (photo !== undefined) user.photo = photo;
   if (gender !== undefined) user.gender = gender;

@@ -7,9 +7,17 @@ module.exports = (sequelize) => {
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true
     },
+    username: {
+      type: DataTypes.STRING(120),
+      allowNull: true,
+      unique: true,
+      validate: {
+        notEmpty: true
+      }
+    },
     phone: {
       type: DataTypes.STRING(32),
-      allowNull: false,
+      allowNull: true,
       unique: true,
       validate: {
         notEmpty: true

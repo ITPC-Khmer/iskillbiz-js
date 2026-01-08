@@ -13,13 +13,11 @@
             <label class="form-label">
               <span class="label-icon">📱</span>
               Phone Number
-              <span class="required">*</span>
             </label>
             <input
               v-model.trim="form.phone"
               class="form-input"
               type="tel"
-              required
               placeholder="+10000000001"
               autocomplete="tel"
             />
@@ -53,6 +51,20 @@
         </div>
 
         <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">
+              <span class="label-icon">🏷️</span>
+              Username
+            </label>
+            <input
+              v-model.trim="form.username"
+              class="form-input"
+              type="text"
+              placeholder="username"
+              autocomplete="username"
+            />
+          </div>
+
           <div class="form-group">
             <label class="form-label">
               <span class="label-icon">👤</span>
@@ -121,12 +133,15 @@ const router = useRouter();
 const loading = ref(false);
 const error = ref('');
 const showPassword = ref(false);
-const form = reactive({ phone: '', password: '', name: '', email: '' });
+const form = reactive({ phone: '', email: '', username: '', password: '', name: '' });
 
 async function submit() {
   loading.value = true;
   error.value = '';
   try {
+    if (!form.phone && !form.email && !form.username) {
+      throw new Error('Please provide at least one of phone, email, or username.');
+    }
     await auth.register(form);
     router.push('/');
   } catch (err) {

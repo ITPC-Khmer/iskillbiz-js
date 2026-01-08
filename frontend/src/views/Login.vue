@@ -10,18 +10,18 @@
       <form @submit.prevent="submit" class="login-form">
         <div class="form-group">
           <label class="form-label">
-            <span class="label-icon">📱</span>
-            Phone Number
+            <span class="label-icon">🪪</span>
+            Phone, Email, or Username
           </label>
           <input
-            v-model.trim="form.phone"
+            v-model.trim="form.identifier"
             class="form-input"
-            type="tel"
+            type="text"
             required
-            placeholder="+10000000001"
-            autocomplete="tel"
+            placeholder="+10000000001 or user@example.com or username"
+            autocomplete="username"
           />
-          <small class="form-hint">Enter your phone number with country code</small>
+          <small class="form-hint">Use your phone number, email address, or username</small>
         </div>
 
         <div class="form-group">
@@ -88,7 +88,7 @@ const router = useRouter();
 const loading = ref(false);
 const error = ref('');
 const showPassword = ref(false);
-const form = reactive({ phone: '', password: '' });
+const form = reactive({ identifier: '', password: '' });
 
 async function submit() {
   loading.value = true;

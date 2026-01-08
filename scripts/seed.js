@@ -15,34 +15,59 @@ const defaultRoles = [
 ];
 
 const defaultPermissions = [
-  { name: 'manage_users', description: 'Create/update/delete users' },
-  { name: 'view_reports', description: 'View reports' },
-  { name: 'manage_content', description: 'Manage content' },
-  { name: 'manage_roles', description: 'Create/update/delete roles' },
-  { name: 'manage_permissions', description: 'Create/update/delete permissions' }
+  // User management
+  { name: 'read_users', description: 'Read users' },
+  { name: 'create_users', description: 'Create users' },
+  { name: 'update_users', description: 'Update users' },
+  { name: 'delete_users', description: 'Delete users' },
+  // Roles
+  { name: 'read_roles', description: 'Read roles' },
+  { name: 'create_roles', description: 'Create roles' },
+  { name: 'update_roles', description: 'Update roles' },
+  { name: 'delete_roles', description: 'Delete roles' },
+  // Permissions
+  { name: 'read_permissions', description: 'Read permissions' },
+  { name: 'create_permissions', description: 'Create permissions' },
+  { name: 'update_permissions', description: 'Update permissions' },
+  { name: 'delete_permissions', description: 'Delete permissions' },
+  // Content
+  { name: 'read_content', description: 'Read content' },
+  { name: 'create_content', description: 'Create content' },
+  { name: 'update_content', description: 'Update content' },
+  { name: 'delete_content', description: 'Delete content' },
+  // Reports
+  { name: 'read_reports', description: 'View reports' }
 ];
 
 const defaultUsers = [
   {
     phone: '+10000000001',
-    password: 'Admin@123',
+    email: 'superadmin@iskillbiz.com',
+    username: 'superadmin',
+    password: '1234!@#$',
     name: 'Super Admin',
     roles: ['super_admin']
   },
   {
     phone: '+10000000002',
-    password: 'Admin@123',
+    email: 'admin@iskillbiz.com',
+    username: 'admin',
+    password: '1234!@#$',
     name: 'Admin',
     roles: ['admin']
   },
   {
     phone: '+10000000003',
+    email: 'client@iskillbiz.com',
+    username: 'client',
     password: 'Client@123',
     name: 'Client',
     roles: ['client']
   },
   {
     phone: '+10000000004',
+    email: 'hybrid@iskillbiz.com',
+    username: 'hybrid',
     password: 'Hybrid@123',
     name: 'Hybrid Admin',
     roles: ['admin', 'editor']
@@ -90,8 +115,22 @@ async function seed() {
 
     // Assign permissions to roles
     await roles.super_admin.setPermissions(Object.values(permissions), { transaction: tx });
-    await roles.admin.setPermissions([permissions.manage_users, permissions.view_reports], { transaction: tx });
-    await roles.editor.setPermissions([permissions.manage_content, permissions.view_reports], { transaction: tx });
+    await roles.admin.setPermissions([
+      permissions.read_users,
+      permissions.create_users,
+      permissions.update_users,
+      permissions.delete_users,
+      permissions.read_roles,
+      permissions.read_permissions,
+      permissions.read_reports
+    ], { transaction: tx });
+    await roles.editor.setPermissions([
+      permissions.read_content,
+      permissions.create_content,
+      permissions.update_content,
+      permissions.delete_content,
+      permissions.read_reports
+    ], { transaction: tx });
     await roles.client.setPermissions([], { transaction: tx });
 
     // Seed users and attach roles
@@ -99,14 +138,16 @@ async function seed() {
     for (const userData of defaultUsers) {
       const passwordHash = await bcrypt.hash(userData.password, 10);
       const [user] = await User.findOrCreate({
-        where: { phone: userData.phone },
-        defaults: {
-          phone: userData.phone,
-          passwordHash,
-          name: userData.name
-        },
-        transaction: tx
-      });
+         where: { phone: userData.phone },
+         defaults: {
+           phone: userData.phone,
+           email: userData.email || null,
+           username: userData.username || null,
+           passwordHash,
+           name: userData.name
+         },
+         transaction: tx
+       });
       if (!user.passwordHash || userData.password) {
         // Ensure password is set in case existing user had placeholder
         user.passwordHash = passwordHash;

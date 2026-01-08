@@ -1,3 +1,4 @@
+const { Op } = require('sequelize');
 const { User, Role, Permission } = require('../models');
 const {
   hashPassword,
@@ -13,21 +14,32 @@ function httpError(status, message) {
 }
 
 async function registerUser(payload, session) {
-  const { phone, password, email, name, photo, gender, dob, bio } = payload || {};
-  if (!phone || !password) {
-    throw httpError(400, 'phone and password are required');
+  const { phone, email, username, password, name, photo, gender, dob, bio } = payload || {};
+  if (!password) {
+    throw httpError(400, 'password is required');
+  }
+  if (!phone && !email && !username) {
+    throw httpError(400, 'phone, email, or username is required');
   }
 
-  const existing = await User.findOne({ where: { phone } });
-  if (existing) {
-    throw httpError(409, 'Phone already registered');
+  const matchers = [];
+  if (phone) matchers.push({ phone });
+  if (email) matchers.push({ email });
+  if (username) matchers.push({ username });
+
+  if (matchers.length) {
+    const existing = await User.findOne({ where: { [Op.or]: matchers } });
+    if (existing) {
+      throw httpError(409, 'Account already exists for provided phone/email/username');
+    }
   }
 
   const passwordHash = await hashPassword(password);
   const user = await User.create({
-    phone,
+    phone: phone || null,
+    email: email || null,
+    username: username || null,
     passwordHash,
-    email,
     name,
     photo,
     gender,
@@ -51,12 +63,25 @@ async function registerUser(payload, session) {
 }
 
 async function loginUser(payload, session) {
-  const { phone, password } = payload || {};
-  if (!phone || !password) {
-    throw httpError(400, 'phone and password are required');
+  const { identifier, phone, email, username, password } = payload || {};
+  if (!password) {
+    throw httpError(400, 'password is required');
   }
 
-  const user = await User.findOne({ where: { phone }, include: [{ model: Role, include: [Permission] }] });
+  const lookup = identifier || phone || email || username;
+  if (!lookup) {
+    throw httpError(400, 'phone, email, or username is required');
+  }
+
+  const matchers = [{ phone: lookup }, { email: lookup }, { username: lookup }];
+  if (phone && phone !== lookup) matchers.push({ phone });
+  if (email && email !== lookup) matchers.push({ email });
+  if (username && username !== lookup) matchers.push({ username });
+
+  const user = await User.findOne({
+    where: { [Op.or]: matchers },
+    include: [{ model: Role, include: [Permission] }]
+  });
   if (!user) {
     throw httpError(401, 'Invalid credentials');
   }

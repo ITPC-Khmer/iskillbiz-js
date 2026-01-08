@@ -15,3 +15,27 @@ pm2 status
 
 pm2 restart ecosystem.config.js
 pm2 save
+
+
+cd /var/www/iskillbiz-js
+git reset --hard
+git pull origin master
+npm install --production
+pm2 restart ecosystem.config.js
+pm2 save
+
+cd /var/www/iskillbiz-js/frontend
+npm install
+npm run build
+cd ../backend
+pm2 restart ecosystem.config.js
+pm2 save
+
+pm2 flush
+pm2 logs iskillbiz-js
+
+cd /Users/globesosuperapp/PhpstormProjects/iskillbiz-js
+node scripts/seed.js
+# or
+SEED_RESET=1 node scripts/seed.js
+
