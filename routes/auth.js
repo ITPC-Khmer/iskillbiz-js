@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { registerUser, loginUser } = require('../services/authService');
+const { requireAuth } = require('../middleware/auth');
 
 router.post('/register', async (req, res, next) => {
   try {
@@ -20,6 +21,10 @@ router.post('/login', async (req, res, next) => {
     if (err.status) return res.error(err.message, err.status);
     next(err);
   }
+});
+
+router.get('/me', requireAuth, (req, res) => {
+  res.success({ user: req.user }, 'me');
 });
 
 module.exports = router;

@@ -9,6 +9,8 @@ const SequelizeStore = require('connect-session-sequelize')(session.Store);
 const { sequelize } = require('./models');
 const authRouter = require('./routes/auth');
 const responseHelpers = require('./middleware/response');
+const rolesRouter = require('./routes/roles');
+const permissionsRouter = require('./routes/permissions');
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
@@ -39,6 +41,8 @@ app.use(session({
 // Sass is precompiled via npm scripts (see package.json)
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/auth', authRouter);
+app.use('/roles', rolesRouter);
+app.use('/permissions', permissionsRouter);
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 

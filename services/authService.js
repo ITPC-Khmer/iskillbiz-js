@@ -1,4 +1,4 @@
-const { User, Role } = require('../models');
+const { User, Role, Permission } = require('../models');
 const {
   hashPassword,
   comparePassword,
@@ -40,6 +40,8 @@ async function registerUser(payload, session) {
     await user.addRole(defaultRole);
   }
 
+  await user.reload({ include: [{ model: Role, include: [Permission] }] });
+
   if (session) {
     session.userId = user.id;
   }
@@ -54,7 +56,7 @@ async function loginUser(payload, session) {
     throw httpError(400, 'phone and password are required');
   }
 
-  const user = await User.findOne({ where: { phone } });
+  const user = await User.findOne({ where: { phone }, include: [{ model: Role, include: [Permission] }] });
   if (!user) {
     throw httpError(401, 'Invalid credentials');
   }
@@ -63,6 +65,8 @@ async function loginUser(payload, session) {
   if (!valid) {
     throw httpError(401, 'Invalid credentials');
   }
+
+  await user.reload({ include: [{ model: Role, include: [Permission] }] });
 
   if (session) {
     session.userId = user.id;

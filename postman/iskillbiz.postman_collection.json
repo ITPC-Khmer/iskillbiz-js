@@ -22,8 +22,7 @@
           "port": "3000",
           "path": ["auth", "register"]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Login",
@@ -43,9 +42,102 @@
           "port": "3000",
           "path": ["auth", "login"]
         }
-      },
-      "response": []
+      }
+    },
+    {
+      "name": "Me",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/auth/me",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["auth", "me"]
+        }
+      }
+    },
+    {
+      "name": "Create User (admin/super_admin)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"phone\": \"+10000000100\",\n  \"password\": \"Password@123\",\n  \"name\": \"Created by Admin\",\n  \"roles\": [\"client\"]\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/users",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["users"]
+        }
+      }
+    },
+    {
+      "name": "List Users (admin/super_admin)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/users",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["users"]
+        }
+      }
+    },
+    {
+      "name": "Create Role (super_admin)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"editor\",\n  \"description\": \"Editor role\",\n  \"permissions\": [\"manage_content\"]\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/roles",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["roles"]
+        }
+      }
+    },
+    {
+      "name": "Create Permission (super_admin)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"custom_permission\",\n  \"description\": \"Custom permission\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/permissions",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["permissions"]
+        }
+      }
     }
   ]
 }
-
