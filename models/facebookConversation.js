@@ -12,13 +12,13 @@ module.exports = (sequelize) => {
       allowNull: false
     },
     conversation_id: {
-      type: DataTypes.VARCHAR(255),
+      type: DataTypes.STRING,
       allowNull: false,
       unique: true
     },
-    participant_name: DataTypes.VARCHAR(255),
-    participant_id: DataTypes.VARCHAR(255),
-    link: DataTypes.VARCHAR(255),
+    participant_name: DataTypes.STRING,
+    participant_id: DataTypes.STRING,
+    link: DataTypes.STRING,
     updated_time: DataTypes.DATE,
     unread_count: {
       type: DataTypes.INTEGER,

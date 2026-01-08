@@ -12,7 +12,7 @@ module.exports = (sequelize) => {
       allowNull: false
     },
     keyword: {
-      type: DataTypes.VARCHAR(255),
+      type: DataTypes.STRING,
       allowNull: false
     },
     match_type: {

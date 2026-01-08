@@ -11,20 +11,20 @@ module.exports = (sequelize) => {
           type: DataTypes.INTEGER,
           allowNull: false
       },
-      page_id: {
-          type: DataTypes.VARCHAR(255),
-          allowNull: false,
-          unique: true
-      },
-      page_access_token: {
-          type: DataTypes.TEXT,
-          allowNull: false
-      },
-      name: DataTypes.VARCHAR(255),
-      category: DataTypes.VARCHAR(255),
-      about: DataTypes.TEXT,
-      picture_url: DataTypes.TEXT,
-      cover_url: DataTypes.TEXT, // Added for cover
+    page_id: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true
+    },
+    page_access_token: {
+      type: DataTypes.TEXT,
+      allowNull: false
+    },
+    name: DataTypes.STRING,
+    category: DataTypes.STRING,
+    about: DataTypes.TEXT,
+    picture_url: DataTypes.TEXT,
+    cover_url: DataTypes.TEXT,
       fan_count: DataTypes.INTEGER,
       is_subscribed: {
           type: DataTypes.BOOLEAN,

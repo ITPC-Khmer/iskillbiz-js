@@ -11,7 +11,7 @@ module.exports = (sequelize) => {
       type: DataTypes.INTEGER,
       allowNull: false
     },
-    name: DataTypes.VARCHAR(255),
+    name: DataTypes.STRING,
     type: {
       type: DataTypes.ENUM('comment_to_message', 'away_message', 'unanswered_alert', 'custom_keyword', 'contact_info'),
       allowNull: false

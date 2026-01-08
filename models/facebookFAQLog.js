@@ -12,7 +12,7 @@ module.exports = (sequelize) => {
       allowNull: false
     },
     facebook_message_id: {
-      type: DataTypes.VARCHAR(255), // Use VARCHAR for ID
+      type: DataTypes.STRING, // Use STRING for ID
       allowNull: true // Might be null if manually tested?
     },
     is_resolved: {

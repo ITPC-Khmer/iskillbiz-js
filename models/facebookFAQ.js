@@ -18,7 +18,7 @@ module.exports = (sequelize) => {
       defaultValue: true
     },
     locale: {
-      type: DataTypes.VARCHAR(10),
+      type: DataTypes.STRING(10),
       defaultValue: 'en_US'
     }
   }, {

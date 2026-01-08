@@ -12,7 +12,7 @@ module.exports = (sequelize) => {
       allowNull: false
     },
     facebook_user_id: {
-      type: DataTypes.VARCHAR(255),
+      type: DataTypes.STRING,
       allowNull: false,
       unique: true
     },
@@ -21,8 +21,8 @@ module.exports = (sequelize) => {
       allowNull: false
     },
     token_expires_at: DataTypes.DATE,
-    name: DataTypes.VARCHAR(255),
-    email: DataTypes.VARCHAR(255),
+    name: DataTypes.STRING,
+    email: DataTypes.STRING,
     status: {
       type: DataTypes.ENUM('active', 'expired', 'revoked'),
       defaultValue: 'active'

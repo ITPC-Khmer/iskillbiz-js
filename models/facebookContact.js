@@ -12,12 +12,12 @@ module.exports = (sequelize) => {
       allowNull: false
     },
     facebook_user_id: {
-      type: DataTypes.VARCHAR(255),
+      type: DataTypes.STRING,
       allowNull: false
     },
-    name: DataTypes.VARCHAR(255),
-    email: DataTypes.VARCHAR(255),
-    phone: DataTypes.VARCHAR(50),
+    name: DataTypes.STRING,
+    email: DataTypes.STRING,
+    phone: DataTypes.STRING(50),
     profile_pic: DataTypes.TEXT,
     last_interaction: DataTypes.DATE,
     notes: DataTypes.TEXT

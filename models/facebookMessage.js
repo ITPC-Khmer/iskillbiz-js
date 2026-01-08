@@ -12,12 +12,12 @@ module.exports = (sequelize) => {
       allowNull: false
     },
     message_id: {
-      type: DataTypes.VARCHAR(255),
+      type: DataTypes.STRING,
       allowNull: false,
       unique: true
     },
-    from_id: DataTypes.VARCHAR(255),
-    from_name: DataTypes.VARCHAR(255),
+    from_id: DataTypes.STRING,
+    from_name: DataTypes.STRING,
     to_data: DataTypes.JSON, // Stores array of recipients
     message: DataTypes.TEXT,
     created_time: DataTypes.DATE,
